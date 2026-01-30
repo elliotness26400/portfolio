@@ -1,0 +1,33 @@
+.map{
+    background-color: rgb(4, 204, 4);
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+}
+
+.env_cont{
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+}
+
+.tree{
+    width: 1.5vw;
+    height: 1.5vw;
+    position: absolute;
+    background-color: brown;
+}
+
+.bush{
+    width: 1vw;
+    height: 1vw;
+    position: absolute;
+    background-color: green;
+}
+
+.carrot{
+    width: .5vw;
+    height: .5vw;
+    position: absolute;
+    background-color: orange;
+}
