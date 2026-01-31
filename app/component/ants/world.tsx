@@ -94,17 +94,16 @@ export function Ants({setings}:{setings:settings}) {
                 let overwride=false;
                 if(following!==null){
                     const pheromones = pheromonesRef.current.filter((e)=>{
-                        const {createdAt,index,strength,trayId,type} = e;
+                        const {trayId} = e;
 
                         const {deg,dist} = distanceAndAngleP1toP2(ant.pos,e.pos);
 
-                        return trayId==following && dist<=setings.ants.view.length;
+                        return trayId==following && ((dist<=setings.ants.view.senseArea)||(dist<=setings.ants.view.length&&angleDifference(ant.dir,deg)<setings.ants.view.width));
                     })
                     if(!pheromones[0]) return overwride=true;
                     if(!ant.aimingPheromone){ // Never reached any pheromone of this tray
                         let closestOne:pheromone=pheromones[0];
                         let closestDist:number=Infinity;
-                        let closestAngle:number = 0;
                         pheromones.forEach(ph => {
                             const {dist} = distanceAndAngleP1toP2(ant.pos,ph.pos);
                             if(dist <= closestDist){
@@ -122,11 +121,8 @@ export function Ants({setings}:{setings:settings}) {
                     }))[0]
 
                     if(aimedPheromone==undefined||aimedPheromone==null||!aimedPheromone){
-                        return overwride=true;
-                    }
-
-
-                    if (!overwride) {
+                        overwride=true;
+                    }else if (!overwride) {
                         const { deg, dist } = distanceAndAngleP1toP2(ant.pos, aimedPheromone.pos);
                     
                         ant.dir = (deg + 360) % 360;
@@ -139,9 +135,7 @@ export function Ants({setings}:{setings:settings}) {
                             }
                     
                             const nextIndex =
-                                ant.action === "home"
-                                    ? ant.aimingPheromone - 1
-                                    : ant.aimingPheromone + 1;
+                                ant.aimingPheromone - 1
                     
                             const nextPheromone = pheromonesRef.current.find(e =>
                                 e.trayId === ant.following &&
@@ -233,14 +227,14 @@ export function Ants({setings}:{setings:settings}) {
                     if(base){
                         if(ant.following){
                             ant.following=null;
-                            ant.pheromoneId=getRandomArbitrary(0,99999);
                         }
-
+                        
                         const {deg,dist} = distanceAndAngleP1toP2(ant.pos,base.pos);
-
+                        
                         ant.dir = (deg+360)%360;
-
+                        
                         if(dist<1){
+                            ant.pheromoneId=getRandomArbitrary(0,99999);
                             ant.action="gathering";
                             ant.load={amount:0,type:"none"};
                         }

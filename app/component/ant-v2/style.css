@@ -1,0 +1,42 @@
+.map{
+    background-color: rgb(4, 204, 4);
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+}
+
+.env_cont{
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+}
+
+.tree{
+    position: absolute;
+    background-color: brown;
+}
+
+.food{
+    background-color:red;
+    border-radius: 100%;
+    position: absolute;
+}
+
+.pheromone{
+    background-color:blue;
+    position: absolute;
+    border-radius: 50%;
+    transition: opacity 0.3s linear;
+}
+
+.ant{
+    /* background-color: black; */
+    position: absolute;
+}
+
+.base{
+    background-color: grey;
+    width: 2.5vw;
+    height: 2.5vw;
+    position: absolute;
+}
