@@ -15,7 +15,7 @@ export default function SIMU() {
                     ants:{
                         speed:0.01,
                         dropDelay:2,
-                        defaultAmount:1,
+                        defaultAmount:20,
                         size:.75,
                         view:{
                             length:5,
