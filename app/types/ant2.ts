@@ -37,11 +37,16 @@ export type Settings = {
         array:Array<Base>;
     }
     ants:{
+        returnThreeshold:number;
         defaultAmount:number;
         speed:number;
         dropDelay:number;
         size:number;
         maxEnergy:number;
+        emptyPathTurnProp:number;
+        maxTurnPerTick:number;
+        STEER_STRENGTH:number;
+        energyConsumedPerTick:number;
         view:{
             width:number;
             length:number;
@@ -73,10 +78,11 @@ export type Settings = {
 type resourceType = "meat"|"leaf"|"none"
 
 export type Ant = {
+    index:number;
     pos:Position;
     baseId:number;
     dir:number;
-    action:"gathering"|"home";
+    action:"gathering"|"home"|"survive";
     load:{
         type:resourceType;
         amount:number,

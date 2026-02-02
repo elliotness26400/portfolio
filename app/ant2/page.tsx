@@ -17,6 +17,11 @@ export default function SIMU() {
                         defaultAmount:20,
                         size:.75,
                         maxEnergy:600,
+                        emptyPathTurnProp:0.5,
+                        maxTurnPerTick:8,
+                        STEER_STRENGTH:0.15,
+                        energyConsumedPerTick:0.5,
+                        returnThreeshold:600/6,
                         view:{
                             length:5,
                             senseArea:4,
