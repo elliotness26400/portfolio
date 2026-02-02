@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
-import { Ants } from "../component/ants/world";
 import { World } from "../component/ant-v2/v2.5";
 
 
@@ -17,6 +16,7 @@ export default function SIMU() {
                         dropDelay:2,
                         defaultAmount:20,
                         size:.75,
+                        maxEnergy:600,
                         view:{
                             length:5,
                             senseArea:4,

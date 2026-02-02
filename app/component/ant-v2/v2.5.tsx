@@ -86,6 +86,112 @@ export function World({setings}:{setings:Settings}) {
     }
 
 
+    function pheromoneSensing(ant:Ant){
+        const pheromoneDensity: {type:PheromoneTypes;strength:number;pos:Position;angle:number;prop?:number;}[] = [];
+
+        const totalFrontAngle = 180;
+        const anglePerFrontSensor = totalFrontAngle / (setings.ants.view.pheromoneDetect.frontNumber - 1);
+        
+        for (let i = 0; i < setings.ants.view.pheromoneDetect.frontNumber; i++) {
+            const angle = ((anglePerFrontSensor * i) - totalFrontAngle/2) * Math.PI / 180
+            const fx = (ant.pos.x + setings.ants.view.pheromoneDetect.distance * Math.cos(ant.dir * Math.PI / 180 + angle) + setings.map.width)%setings.map.width
+            const fy = (ant.pos.y + setings.ants.view.pheromoneDetect.distance * Math.sin(ant.dir * Math.PI / 180 + angle) + setings.map.height)%setings.map.height
+            const square = mapRef.current[Math.floor(fy)]?.[Math.floor(fx)];
+            if(square){
+                pheromoneDensity.push({type:ant.action=="gathering"?"food":"home",strength:square.pheromones[ant.action=="gathering"?"food":"home"].strength,pos:{x:fx,y:fy},angle:(ant.dir + (angle * 180 / Math.PI)+360)%360});
+            }
+        }
+
+        const totalBackAngle = 60;
+        const anglePerBackSensor = totalBackAngle / (setings.ants.view.pheromoneDetect.backNumber - 1);
+        
+        for (let i = 0; i < setings.ants.view.pheromoneDetect.backNumber; i++) {
+            const angle = ((anglePerBackSensor * i) - totalBackAngle/2 - 180) * Math.PI / 180
+            const fx = (ant.pos.x + setings.ants.view.pheromoneDetect.backDistance * Math.cos(ant.dir * Math.PI / 180 + angle) + setings.map.width)%setings.map.width
+            const fy = (ant.pos.y + setings.ants.view.pheromoneDetect.backDistance * Math.sin(ant.dir * Math.PI / 180 + angle) + setings.map.height)%setings.map.height
+            const square = mapRef.current[Math.floor(fy)]?.[Math.floor(fx)];
+            if(square){
+                pheromoneDensity.push({type:ant.action=="gathering"?"food":"home",strength:square.pheromones[ant.action=="gathering"?"food":"home"].strength,pos:{x:fx,y:fy},angle:(ant.dir + (angle * 180 / Math.PI)+360)%360});
+            }
+        }
+
+        const sum = pheromoneDensity.reduce((acc, curr) => acc + curr.strength, 0);
+
+        pheromoneDensity.map(p=>{
+            const probability = (setings.ants.view.pheromoneDetect.gama+p.strength)/ (sum + pheromoneDensity.length * setings.ants.view.pheromoneDetect.gama);
+            p.prop = probability;
+        });
+
+        const {tmpDir,strength} = chooseRandomItem(pheromoneDensity.length ? pheromoneDensity : [{angle: Math.random()*360, strength: 0, pos:{x:ant.pos.x,y:ant.pos.y}, type:ant.action=="gathering"?"food":"home", prop:1}]);
+
+        if(strength > 0 || (Math.random()<0.3)){
+            const normStrength = Math.min(1, strength / 8);
+            const STEER_STRENGTH = 0.15;
+            const maxTurn = 1 + normStrength * 8; // cap from 1 to 8
+
+            const delta = ((tmpDir - ant.dir + 540) % 360) - 180;
+            ant.dir += clamp(delta * STEER_STRENGTH, -maxTurn, maxTurn);
+        }       
+    }
+
+
+    function directionRandomNClamping(ant:Ant, randomMove:number){
+        ant.dir += getRandomArbitrary(-randomMove, randomMove);
+
+        if (ant.dir < 0) ant.dir += 360;
+        if (ant.dir >= 360) ant.dir -= 360;
+    
+        const rad = ant.dir * Math.PI / 180;
+    
+        const speed = setings.ants.speed;
+    
+        ant.pos.x += Math.cos(rad) * speed;
+        ant.pos.y += Math.sin(rad) * speed;
+    
+        // Wrap world
+        if (ant.pos.x < 0) ant.pos.x = setings.map.width;
+        if (ant.pos.x > setings.map.width) ant.pos.x = 0;
+        if (ant.pos.y < 0) ant.pos.y = setings.map.height;
+        if (ant.pos.y > setings.map.height) ant.pos.y = 0;
+    }
+
+
+    function dropPheromone(ant:Ant){
+        const pheromonesCells = getNearbyCells(
+            ant.pos.x,
+            ant.pos.y,
+            0, // RADIUS 0 = only the cell the ant is on
+        );
+        
+        function addPheromone(cell:MapPos,amount:number){
+            const amount2 = amount*(0.9*ant.distanceSinceLastChanged);
+            if(cell.pheromones[ant.action=="gathering"?"home":"food"].strength+amount2<=10){
+                cell.pheromones[ant.action=="gathering"?"home":"food"].strength+=amount2;
+            }
+            ant.distanceSinceLastChanged+=1;
+        }
+
+        for(const cell of pheromonesCells){
+            const isIn = ant.RenforcedPheromone.findIndex(p=>p.x==cell.pos.x&&p.y==cell.pos.y);
+            if(isIn==-1){
+                let toAdd = 1.6;
+                if(cell.pos.x==parseInt(ant.pos.x.toString())&&cell.pos.y==parseInt(ant.pos.y.toString())){
+                    toAdd=2.3;
+                    ant.RenforcedPheromone2.push(cell.pos);
+                }
+                addPheromone(cell,toAdd);
+                cell.pheromones[ant.action=="gathering"?"home":"food"].editedAt = Date.now();
+                ant.RenforcedPheromone.push(cell.pos);
+            }else if(cell.pos.x==parseInt(ant.pos.x.toString())&&cell.pos.y==parseInt(ant.pos.y.toString())){
+                const isIn2 = ant.RenforcedPheromone2.findIndex(p=>p.x==cell.pos.x&&p.y==cell.pos.y);
+                if(isIn2!=-1){
+                    addPheromone(cell,2.3);
+                    cell.pheromones[ant.action=="gathering"?"home":"food"].editedAt = Date.now();
+                    ant.RenforcedPheromone2.push(cell.pos);
+                }
+            }
+        }
+    }
 
 
     function init() {
@@ -139,6 +245,7 @@ export function World({setings}:{setings:Settings}) {
             RenforcedPheromone: [],
             RenforcedPheromone2: [],
             distanceSinceLastChanged:0,
+            energy:setings.ants.maxEnergy,
             });
         }
         });
@@ -342,168 +449,103 @@ export function World({setings}:{setings:Settings}) {
                 if (!htmlel) return;    
                 const {action,baseId,dir,load,pos} = ant;
 
+
+
                 const nearbyCells = getNearbyCells(
                     ant.pos.x,
                     ant.pos.y,
                     setings.ants.view.length
                 );
 
+
+
                 let randomMove:number = 1.5;
+
                 
                 if(action=="gathering"){
 
-                    const antCenter = {x:ant.pos.x+(cellWidth*(1-setings.ants.size)/2),y:ant.pos.y+(cellWidth*(1-setings.ants.size)/2)};
+                    
 
-                    const nearbyFood = nearbyCells.flat().filter(cell => {
-                        const {dist,deg} = distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellWidth*(1-setings.food.size)/2)});
-                        return cell.foods.amount > 0 && cell.foods.type !== "none" && ((compareSquaredDistances(dist,setings.ants.view.length)&& deg <= setings.ants.view.width / 2)|| (compareSquaredDistances(dist,setings.ants.view.senseArea)));
-                    }).map(cell => ({
-                        ...cell.foods,pos:{x:cell.pos.x,y:cell.pos.y,dist:distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellWidth*(1-setings.food.size)/2)}).dist,deg:distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellWidth*(1-setings.food.size)/2)}).deg}
-                    }));
 
-                    const closest = nearbyFood.sort((a, b) => a.pos.dist - b.pos.dist);
-    
-                    if(closest[0]?.pos.deg!==undefined){
-                        randomMove=1.5;
-                        if(!compareSquaredDistances(closest[0]?.pos.dist,setings.touchDistance)){
-                            const angleToFood = closest[0].pos.deg;
-                            ant.dir=angleToFood;
-                        }else{
-                            ant.action="home";
-                            ant.distanceSinceLastChanged=0;
-                            ant.load.type=closest[0].type;
-                            const closeCell = mapRef.current[closest[0].pos.y][closest[0].pos.x];
-                            const gatherAmount = Math.min(closest[0].amount, ant.capacity);
-                            closeCell.foods.amount -= gatherAmount;
-                            ant.load.amount=gatherAmount;
-                            console.log(closest[0].amount);
-                            if(closest[0].amount<=0){
-                                closeCell.foods.type="none";
-                            }
-                        }
-                    }
                 }
                 if(action == "home"){
-                    const base = bases.find(b => b.id === baseId);
-                    const antCenter = {x:ant.pos.x+(cellWidth*(1-setings.ants.size)/2),y:ant.pos.y+(cellWidth*(1-setings.ants.size)/2)};
-                    if(base){
-                        const {dist,deg} = distanceAndAngleP1toP2(antCenter, {x:base.pos.x+(cellWidth*(1-setings.ants.size)/2),y:base.pos.y+(cellWidth*(1-setings.ants.size)/2)});
-                        if(dist<=setings.ants.view.length*setings.ants.view.length){
-                            ant.dir=deg;
-                        }
-                        if(dist<=setings.touchDistance){
-                            ant.RenforcedPheromone=[];
-                            ant.RenforcedPheromone2=[];
-                            ant.action="gathering";
-                            ant.distanceSinceLastChanged=0;
-                            ant.load.type="none";
-                            ant.load.amount=0;
-                            
-                        }
-                    }
+
+
+                    
+
+
                 }
+
+                const antCenter = {x:ant.pos.x+(cellWidth*(1-setings.ants.size)/2),y:ant.pos.y+(cellWidth*(1-setings.ants.size)/2)};
+                switch (action) {
+                    case "gathering":
+
+                        const nearbyFood = nearbyCells.flat().filter(cell => {
+                            const {dist,deg} = distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellWidth*(1-setings.food.size)/2)});
+                            return cell.foods.amount > 0 && cell.foods.type !== "none" && ((compareSquaredDistances(dist,setings.ants.view.length)&& deg <= setings.ants.view.width / 2)|| (compareSquaredDistances(dist,setings.ants.view.senseArea)));
+                        }).map(cell => ({
+                            ...cell.foods,pos:{x:cell.pos.x,y:cell.pos.y,dist:distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellWidth*(1-setings.food.size)/2)}).dist,deg:distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellWidth*(1-setings.food.size)/2)}).deg}
+                        }));
+
+                        const closest = nearbyFood.sort((a, b) => a.pos.dist - b.pos.dist);
+        
+                        if(closest[0]?.pos.deg!==undefined){
+                            randomMove=1.5;
+                            if(!compareSquaredDistances(closest[0]?.pos.dist,setings.touchDistance)){
+                                const angleToFood = closest[0].pos.deg;
+                                ant.dir=angleToFood;
+                            }else{
+                                ant.action="home";
+                                ant.distanceSinceLastChanged=0;
+                                ant.load.type=closest[0].type;
+                                const closeCell = mapRef.current[closest[0].pos.y][closest[0].pos.x];
+                                const gatherAmount = Math.min(closest[0].amount, ant.capacity);
+                                closeCell.foods.amount -= gatherAmount;
+                                ant.load.amount=gatherAmount;
+                                console.log(closest[0].amount);
+                                if(closest[0].amount<=0){
+                                    closeCell.foods.type="none";
+                                }
+                            }
+                        }
+                        
+                        break;
+                    case "home":
+                        const base = bases.find(b => b.id === baseId);
+
+                        if(base){
+                            const {dist,deg} = distanceAndAngleP1toP2(antCenter, {x:base.pos.x+(cellWidth*(1-setings.ants.size)/2),y:base.pos.y+(cellWidth*(1-setings.ants.size)/2)});
+                            if(dist<=setings.ants.view.length*setings.ants.view.length){
+                                ant.dir=deg;
+                            }
+                            if(dist<=setings.touchDistance){
+                                ant.RenforcedPheromone=[];
+                                ant.RenforcedPheromone2=[];
+                                ant.action="gathering";
+                                ant.distanceSinceLastChanged=0;
+                                ant.load.type="none";
+                                ant.load.amount=0;
+                                
+                            }
+                        }
+
+                        break;
+                    default:
+                        break;
+                }
+
+
+
+
 
                 // Pheromone handling
-                
-                const pheromoneDensity: {type:PheromoneTypes;strength:number;pos:Position;angle:number;prop?:number;}[] = [];
+                pheromoneSensing(ant);
 
-                const totalFrontAngle = 180;
-                const anglePerFrontSensor = totalFrontAngle / (setings.ants.view.pheromoneDetect.frontNumber - 1);
-                
-                for (let i = 0; i < setings.ants.view.pheromoneDetect.frontNumber; i++) {
-                    const angle = ((anglePerFrontSensor * i) - totalFrontAngle/2) * Math.PI / 180
-                    const fx = (ant.pos.x + setings.ants.view.pheromoneDetect.distance * Math.cos(ant.dir * Math.PI / 180 + angle) + setings.map.width)%setings.map.width
-                    const fy = (ant.pos.y + setings.ants.view.pheromoneDetect.distance * Math.sin(ant.dir * Math.PI / 180 + angle) + setings.map.height)%setings.map.height
-                    const square = mapRef.current[Math.floor(fy)]?.[Math.floor(fx)];
-                    if(square){
-                        pheromoneDensity.push({type:ant.action=="gathering"?"food":"home",strength:square.pheromones[ant.action=="gathering"?"food":"home"].strength,pos:{x:fx,y:fy},angle:(ant.dir + (angle * 180 / Math.PI)+360)%360});
-                    }
-                }
-
-                const totalBackAngle = 60;
-                const anglePerBackSensor = totalBackAngle / (setings.ants.view.pheromoneDetect.backNumber - 1);
-                
-                for (let i = 0; i < setings.ants.view.pheromoneDetect.backNumber; i++) {
-                    const angle = ((anglePerBackSensor * i) - totalBackAngle/2 - 180) * Math.PI / 180
-                    const fx = (ant.pos.x + setings.ants.view.pheromoneDetect.backDistance * Math.cos(ant.dir * Math.PI / 180 + angle) + setings.map.width)%setings.map.width
-                    const fy = (ant.pos.y + setings.ants.view.pheromoneDetect.backDistance * Math.sin(ant.dir * Math.PI / 180 + angle) + setings.map.height)%setings.map.height
-                    const square = mapRef.current[Math.floor(fy)]?.[Math.floor(fx)];
-                    if(square){
-                        pheromoneDensity.push({type:ant.action=="gathering"?"food":"home",strength:square.pheromones[ant.action=="gathering"?"food":"home"].strength,pos:{x:fx,y:fy},angle:(ant.dir + (angle * 180 / Math.PI)+360)%360});
-                    }
-                }
-
-                const sum = pheromoneDensity.reduce((acc, curr) => acc + curr.strength, 0);
-
-                pheromoneDensity.map(p=>{
-                    const probability = (setings.ants.view.pheromoneDetect.gama+p.strength)/ (sum + pheromoneDensity.length * setings.ants.view.pheromoneDetect.gama);
-                    // const probability = (p.strength)/(sum + pheromoneDensity.length * setings.ants.view.pheromoneDetect.gama);
-                    p.prop = probability;
-                });
-
-                const {tmpDir,strength} = chooseRandomItem(pheromoneDensity.length ? pheromoneDensity : [{angle: Math.random()*360, strength: 0, pos:{x:ant.pos.x,y:ant.pos.y}, type:ant.action=="gathering"?"food":"home", prop:1}]);
-
-                const normStrength = Math.min(1, strength / 8);
-                const STEER_STRENGTH = 0.15;
-                const maxTurn = 1 + normStrength * 8; // 1 → 6 degrees
-
-                const delta = ((tmpDir - ant.dir + 540) % 360) - 180;
-                ant.dir += clamp(delta * STEER_STRENGTH, -maxTurn, maxTurn);
-
-                ant.dir += getRandomArbitrary(-randomMove, randomMove);
-
-                if (ant.dir < 0) ant.dir += 360;
-                if (ant.dir >= 360) ant.dir -= 360;
-    
-                const rad = ant.dir * Math.PI / 180;
-    
-                const speed = setings.ants.speed;
-    
-                ant.pos.x += Math.cos(rad) * speed;
-                ant.pos.y += Math.sin(rad) * speed;
-    
-                // Wrap world
-                if (ant.pos.x < 0) ant.pos.x = setings.map.width;
-                if (ant.pos.x > setings.map.width) ant.pos.x = 0;
-                if (ant.pos.y < 0) ant.pos.y = setings.map.height;
-                if (ant.pos.y > setings.map.height) ant.pos.y = 0;
-
+                // Ant direction handling
+                directionRandomNClamping(ant,randomMove);
 
                 // Drop pheromone
-                const pheromonesCells = getNearbyCells(
-                    ant.pos.x,
-                    ant.pos.y,
-                    0, // RADIUS 0 = only the cell the ant is on
-                );
-                
-                function addPheromone(cell:MapPos,amount:number){
-                    const amount2 = amount/(Math.min(ant.distanceSinceLastChanged/500 + 1,4));
-                    if(cell.pheromones[ant.action=="gathering"?"home":"food"].strength+amount2<=10){
-                        cell.pheromones[ant.action=="gathering"?"home":"food"].strength+=amount2;
-                    }
-                    ant.distanceSinceLastChanged+=1;
-                }
-
-                for(const cell of pheromonesCells){
-                    const isIn = ant.RenforcedPheromone.findIndex(p=>p.x==cell.pos.x&&p.y==cell.pos.y);
-                    if(isIn==-1){
-                        let toAdd = 1.6;
-                        if(cell.pos.x==parseInt(ant.pos.x.toString())&&cell.pos.y==parseInt(ant.pos.y.toString())){
-                            toAdd=2.3;
-                            ant.RenforcedPheromone2.push(cell.pos);
-                        }
-                        addPheromone(cell,toAdd);
-                        cell.pheromones[ant.action=="gathering"?"home":"food"].editedAt = Date.now();
-                        ant.RenforcedPheromone.push(cell.pos);
-                    }else if(cell.pos.x==parseInt(ant.pos.x.toString())&&cell.pos.y==parseInt(ant.pos.y.toString())){
-                        const isIn2 = ant.RenforcedPheromone2.findIndex(p=>p.x==cell.pos.x&&p.y==cell.pos.y);
-                        if(isIn2!=-1){
-                            addPheromone(cell,2.3);
-                            cell.pheromones[ant.action=="gathering"?"home":"food"].editedAt = Date.now();
-                            ant.RenforcedPheromone2.push(cell.pos);
-                        }
-                    }
-                }
+                dropPheromone(ant);
 
             });
 

@@ -41,6 +41,7 @@ export type Settings = {
         speed:number;
         dropDelay:number;
         size:number;
+        maxEnergy:number;
         view:{
             width:number;
             length:number;
@@ -84,6 +85,7 @@ export type Ant = {
     RenforcedPheromone:Position[];
     RenforcedPheromone2:Position[];
     distanceSinceLastChanged:number;
+    energy:number;
 }
 
 export type Food = {
