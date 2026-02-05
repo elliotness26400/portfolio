@@ -14,14 +14,20 @@ export default function SIMU() {
                     ants:{
                         speed:0.01,
                         dropDelay:2,
-                        defaultAmount:20,
+                        defaultAmount:1,
                         size:.75,
                         maxEnergy:600,
                         emptyPathTurnProp:0.5,
                         maxTurnPerTick:8,
                         STEER_STRENGTH:0.15,
-                        energyConsumedPerTick:0.5,
+                        energyConsumedPerTick:0.1,
                         returnThreeshold:600/6,
+                        consume:{
+                            meat:{
+                                energy:600,
+                                quantity:1,
+                            }
+                        },
                         view:{
                             length:5,
                             senseArea:4,
@@ -37,10 +43,10 @@ export default function SIMU() {
                         }
                     },
                     bases:{
-                        array:[{color:"brown",id:0,pos:{x:50,y:50,height:2,width:2}}]
+                        array:[{color:"brown",id:0,pos:{x:50,y:50,height:2,width:2},storage:{eggs:0,leave:0,meat:10}}]
                     },
                     food:{
-                        defaultAmount:20,
+                        defaultAmount:10,
                         foodPerSportMin:20,
                         foodPerSportMax:150,
                         size:.8,

@@ -149,9 +149,10 @@ export function World({setings}:{setings:Settings}) {
 
             
             const delta = ((tmpDir - ant.dir + 540) % 360) - 180;
-            console.log(delta);
+            const newDir = ((ant.dir + tmpDir + 540) % 360)-180
+            console.log(delta,clamp(delta * setings.ants.STEER_STRENGTH, -maxTurn, maxTurn));
             ant.dir += clamp(delta * setings.ants.STEER_STRENGTH, -maxTurn, maxTurn);
-        }       
+        }
     }
 
 
@@ -180,13 +181,16 @@ export function World({setings}:{setings:Settings}) {
         const pheromonesCells = getNearbyCells(
             ant.pos.x,
             ant.pos.y,
-            0, // RADIUS 0 = only the cell the ant is on
+            1, // RADIUS 0 = only the cell the ant is on
         );
         
         function addPheromone(cell:MapPos,amount:number){
             const amount2 = amount*(0.9*ant.distanceSinceLastChanged);
-            if(cell.pheromones[ant.action=="gathering"?"home":"food"].strength+amount2<=10){
-                cell.pheromones[ant.action=="gathering"?"home":"food"].strength+=amount2;
+            const type = ant.action=="gathering"?"home":(ant.action=="survive"?null:"food")
+            // console.log(amount2,ant.action=="gathering"?"home":(ant.action=="survive"?null:"food"));
+            if(type && cell.pheromones[type].strength+amount2<=10){
+                cell.pheromones[type].strength+=amount2;
+                cell.pheromones[type].editedAt = Date.now();
             }
             ant.distanceSinceLastChanged+=1;
         }
@@ -200,13 +204,11 @@ export function World({setings}:{setings:Settings}) {
                     ant.RenforcedPheromone2.push(cell.pos);
                 }
                 addPheromone(cell,toAdd);
-                cell.pheromones[ant.action=="gathering"?"home":"food"].editedAt = Date.now();
                 ant.RenforcedPheromone.push(cell.pos);
             }else if(cell.pos.x==parseInt(ant.pos.x.toString())&&cell.pos.y==parseInt(ant.pos.y.toString())){
                 const isIn2 = ant.RenforcedPheromone2.findIndex(p=>p.x==cell.pos.x&&p.y==cell.pos.y);
                 if(isIn2!=-1){
                     addPheromone(cell,2.3);
-                    cell.pheromones[ant.action=="gathering"?"home":"food"].editedAt = Date.now();
                     ant.RenforcedPheromone2.push(cell.pos);
                 }
             }
@@ -214,7 +216,8 @@ export function World({setings}:{setings:Settings}) {
     }
 
     function energyHandling(ant:Ant){
-        ant.energy-=setings.ants.energyConsumedPerTick;
+        ant.energy=Math.max(0,(ant.energy-setings.ants.energyConsumedPerTick));
+
 
         if(ant.energy < (setings.ants.energyConsumedPerTick * 2)){
             // Die
@@ -234,7 +237,6 @@ export function World({setings}:{setings:Settings}) {
             });
         }
 
-        // console.log(foodPossitions)
 
         // Map
         const mapRes: Map = [];
@@ -506,7 +508,6 @@ export function World({setings}:{setings:Settings}) {
                                     const gatherAmount = Math.min(closest[0].amount, ant.capacity);
                                     closeCell.foods.amount -= gatherAmount;
                                     ant.load.amount=gatherAmount;
-                                    console.log(closest[0].amount);
                                     if(closest[0].amount<=0){
                                         closeCell.foods.type="none";
                                     }
@@ -515,7 +516,7 @@ export function World({setings}:{setings:Settings}) {
                         }
 
                         break;
-                    case "home" || "survive":
+                    default: // Home || Surviving
                         const base = bases.find(b => b.id === baseId);
 
                         if(base){
@@ -530,11 +531,13 @@ export function World({setings}:{setings:Settings}) {
                                 ant.distanceSinceLastChanged=0;
                                 ant.load.type="none";
                                 ant.load.amount=0;
+                                if(base.storage.meat>0){
+                                    base.storage.meat=clamp(base.storage.meat-setings.ants.consume.meat.quantity,0,Infinity);
+                                    ant.energy=clamp(ant.energy+setings.ants.consume.meat.energy,0,setings.ants.maxEnergy);
+                                }
                             }
                         }
 
-                        break;
-                    default:
                         break;
                 }
 
@@ -582,12 +585,8 @@ export function World({setings}:{setings:Settings}) {
                     cell.pheromones.food.strength *= 0.99;
                     // cell.pheromones.food.strength = Math.max(0, cell.pheromones.food.strength - 1/(age + 1));
                     
-                    // const age2 = (now - cell.pheromones.home.editedAt) / 9999999999;
-                    // cell.pheromones.home.strength = Math.max(0, cell.pheromones.home.strength - 1/(age2 + 1));
                     cell.pheromones.home.strength *= 0.99;
                     
-                    // const age3 = (now - cell.pheromones.danger.editedAt) / 9999999999;
-                    // cell.pheromones.danger.strength = Math.max(0, cell.pheromones.danger.strength - 1/(age3 + 1));
                     cell.pheromones.danger.strength *= 0.99;
                 });
             });
@@ -597,64 +596,4 @@ export function World({setings}:{setings:Settings}) {
     }, []);
     
     return <canvas ref={canvasRef} width={canvasWidth} height={canvasHeight} style={{ border: "1px solid black" }} />;
-
-    // return (
-    //     <div className="map">
-
-    //         <div className="grid">
-    //             {mapRef.current.length > 0 ? (
-    //                 mapRef.current.map((row, y) => (
-    //                 <div className="row" key={y}>
-    //                     {row.map((cell, x) => (
-    //                     <Cell
-    //                         key={`${y}-${x}`}
-    //                         item={cell}
-    //                         x={x}
-    //                         y={y}
-    //                     />
-    //                     ))}
-    //                 </div>
-    //                 ))
-    //             ) : (
-    //                 <p>Loading...</p>
-    //             )}
-    //         </div>
-            
-    //         <div className="environement">
-
-    //             <div className="ants env_cont">
-    //             {antsRef.current.map((item, i) => (
-    //                 <VisualAnt
-    //                     key={i}
-    //                     item={item}
-    //                     size={setings.ants.size}
-    //                     ref={el => {
-    //                         if (el) antsHTMLREF.current[i] = el;
-    //                     }}
-    //                 />
-    //             ))}
-
-    //             </div>
-
-    //             {/* <div className="pheromones env_cont">
-    //                 {pheromonesMap.map((item,i)=>(
-    //                     <div className="pheromone" key={i} style={{backgroundColor:`${item.type=="food"?"red":(item.type=="home"?"blue:":"purple")}`,width:`${Math.min((setings.pheromone.size)*(item.strength/5),2)+.5}vw`,aspectRatio:1,'left':`${item.pos.x}vw`,'top':`${item.pos.y}vh`,opacity:`${Math.max(0, Math.min(1, item.strength))/2}`}}></div>
-    //                 ))}
-    //             </div>
-
-    //             <div className="foods env_cont">
-    //                 {foods.map((item,i)=>(
-    //                     <div className="food" key={i} style={{width:`${(item.amount*setings.food.size)/20}vw`,aspectRatio:1,'left':`${item.pos.x}vw`,'top':`${item.pos.y}vh`}}></div>
-    //                 ))}
-    //             </div>
-
-    //             <div className="bases env_cont">
-    //                 {bases.map((item,i)=>(
-    //                     <Base item={item} key={i}></Base>
-    //                 ))}
-    //             </div> */}
-
-    //         </div>
-    //     </div>
-    // );
 }

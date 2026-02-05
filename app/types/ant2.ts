@@ -19,6 +19,11 @@ export type Base = {
     id:number;
     color:string;
     pos:Position;
+    storage:{
+        eggs:number;
+        leave:number;
+        meat:number;
+    };
 }
 
 export type Settings = {
@@ -47,6 +52,12 @@ export type Settings = {
         maxTurnPerTick:number;
         STEER_STRENGTH:number;
         energyConsumedPerTick:number;
+        consume : {
+            meat:{
+                quantity:number;
+                energy:number;
+            }   
+        }
         view:{
             width:number;
             length:number;
