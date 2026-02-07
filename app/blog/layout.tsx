@@ -1,3 +1,5 @@
+import style from './main.module.scss'
+
 export default function BlogLayout({
   children,
 }: {
@@ -6,8 +8,8 @@ export default function BlogLayout({
   return (
     <html lang="en">
       <body>
-        <div>AAABB NAVBAR</div>
-        <main>{children}</main>
+        <div className={style.navbar}>AAABB NAVBAR</div>
+        <main id={style.main}>{children}</main>
       </body>
     </html>
   )

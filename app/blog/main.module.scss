@@ -1,0 +1,33 @@
+body{
+    margin : 5vh 0vw;
+    background-color: rgb(246, 237, 202);
+    color:black;
+    .navbar{
+        position: fixed;
+        top:0;
+        left:0;
+        width: 100vw;
+        height: 5vh;
+        background-color: red;
+    }
+
+    #main{
+        padding: 0 5vw;
+
+        h1{
+            size:50;
+        }
+        h2{
+            font-size:30;
+        }
+        h3{
+            font-size:20;
+        }
+        h4{
+            font-size: 15;
+        }
+        p{
+            font-size: 10;
+        }
+    }
+}
