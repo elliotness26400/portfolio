@@ -1,5 +1,7 @@
 // TYPES 
 
+import { useEffect, useState } from "react";
+
 export type Position = {
     x:number;
     y:number;
@@ -75,6 +77,6 @@ export function doCircleCollide(o1: SimulationObject, o2: SimulationObject): boo
     const p1 = distX*distX + distY*distY;
     const p2 = distMax*distMax;
     const res = p1 <= p2;
-    console.log(p1,p2,res);
+    // console.log(p1,p2,res);
     return res;
 }
