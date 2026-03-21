@@ -16,6 +16,15 @@ export type ContentItem = {
     title:string;
     description?:string;
     content:Array<ContentItem>;
+} |
+{
+    type:"list";
+    title:string;
+    content:Array<string>;
+} | {
+    type:"linkList";
+    title:string;
+    content:Array<{url:string;title:string}>;
 }
 
 export type MainType = {

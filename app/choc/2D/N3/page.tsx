@@ -9,21 +9,23 @@ import useMousePosition from "@/app/hook/mousePos";
 
 const setings = {
     map:{
-        width:1000,
-        height:1000,
+        width:1700,
+        height:1200,
     },
-    canvasWidth:800,
-    canvasHeight:800,
+    canvasWidth:1600,
+    canvasHeight:1000,
     simSpeed:5,
-    tickTime:50,
+    tickTime:20,
     clickSpeedRef:2,
     friction:0.995,
 }
 
-const generatePositions:(nb:number,size:number,ofset:number)=>Array<Position> = (nb:number,size:number,ofset:number) => {
+const colors = ["red","green","blue","yellow","purple","cyan","magenta"]
+
+const generatePositions:(nb:number,size:number,ofset:number)=>Array<{p:Position,c:string}> = (nb:number,size:number,ofset:number) => {
     const startPos = {x:setings.canvasWidth/2,y:setings.canvasHeight/2}
 
-    let res:Array<Position> = []
+    let res:Array<{p:Position,c:string}> = []
 
     console.log(nb)
 
@@ -48,8 +50,8 @@ const generatePositions:(nb:number,size:number,ofset:number)=>Array<Position> = 
         if(col==null || row==null) break;
         
         let centerX = startPos.x + col*(size+ofset)
-        let centerY = startPos.y - col*(size+ofset) + row*(size+ofset)
-        res.push({x:centerX-size/2,y:centerY-size/2})
+        let centerY = startPos.y - col*(size+ofset) + row*(size+ofset) + ((size+ofset)*col/2)
+        res.push({p:{x:centerX-size/2,y:centerY-size/2},c:colors[col%colors.length]})
         console.log(res);
     }
 
@@ -79,8 +81,7 @@ export default function Simu1DN1() {
     const mapCenter:Position = {x:canvasWidth/2,y:canvasHeight/2}
 
     const ballSize=50;
-    // const defaultsPoses:Array<Position> = [{x:mapCenter.x,y:mapCenter.y},{x:mapCenter.x+ballSize+60,y:mapCenter.y+60},{x:mapCenter.x+ballSize+60,y:mapCenter.y-60}]
-    const defaultsPoses = generatePositions(6,25,10);
+    const defaultsPoses = generatePositions(6,25,80);
     let defaultObjects:Array<SimulationObject> = [
         {
             mass:10,
@@ -91,8 +92,8 @@ export default function Simu1DN1() {
                 x:100,y:setings.canvasHeight/2,
             },
             size:{
-                x:50,
-                y:50,
+                x:100,
+                y:100,
             },
             color:"red",
             id:getRandomArbitrary(0,100000000),
@@ -107,12 +108,12 @@ export default function Simu1DN1() {
             movement:{
                 x:0,y:0,
             },
-            pos:p,
+            pos:p.p,
             size:{
                 x:100,
                 y:100,
             },
-            color:"green",
+            color:p.c,
             id:getRandomArbitrary(0,100000000),
             isCircle:true,
             collided:false,
@@ -199,7 +200,7 @@ export default function Simu1DN1() {
                 }
 
                 if(newPos.x<=0 || newPos.x + o.size.x >=setings.canvasWidth) return o.movement.x = -o.movement.x
-                if(newPos.y<=0 || newPos.y + o.size.y >=setings.canvasWidth) return o.movement.y = -o.movement.y
+                if(newPos.y<=0 || newPos.y + o.size.y >=setings.canvasHeight) return o.movement.y = -o.movement.y
 
                 o.pos = newPos;
             })

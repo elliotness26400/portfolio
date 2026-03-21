@@ -12,7 +12,7 @@ const setings = {
     },
     canvasWidth:500,
     canvasHeight:500,
-    simSpeed:2,
+    simSpeed:.5,
     tickTime:200,
 }
 
@@ -51,7 +51,7 @@ export default function Simu1DN1() {
                 x:100,
                 y:100,
             },
-            color:"black",
+            color:"green",
             id:getRandomArbitrary(0,100000000),
             isCircle:true,
             collided:false,
@@ -118,6 +118,8 @@ export default function Simu1DN1() {
             objectsRef.current.forEach((o)=>{
                 o.collided=false;
             })
+
+            console.log(objectsRef.current[0].movement.x+objectsRef.current[1].movement.x+objectsRef.current[0].movement.y+objectsRef.current[1].movement.y,objectsRef.current[0].movement.x+objectsRef.current[1].movement.x,objectsRef.current[0].movement.y+objectsRef.current[1].movement.y);
             
             objectsRef.current.forEach((o, i) => {
                 // let collided = false;
@@ -219,7 +221,7 @@ export default function Simu1DN1() {
                             }
 
 
-                            o.color = "yellow";
+                            // o.color = "yellow";
                         }
                     }
                 });

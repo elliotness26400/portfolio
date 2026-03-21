@@ -2,6 +2,7 @@
 
 import React, { forwardRef } from "react";
 import { HeaderType } from "@/app/types/blog";
+import style from "./main.module.scss";
 
 export function BlogHeader({data}:{data:HeaderType}){
 
@@ -9,8 +10,8 @@ export function BlogHeader({data}:{data:HeaderType}){
 
     return (
         <div>
-            <h1>{title}</h1>
-            <h2>{description}</h2>
+            <h1 className={style.bigblogtitle}>{title}</h1>
+            <h2 className={style.blogdescription}>{description}</h2>
         </div>
     );
 
