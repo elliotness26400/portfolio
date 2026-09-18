@@ -48,6 +48,7 @@ export type Settings = {
         dropDelay:number;
         size:number;
         maxEnergy:number;
+        pheromoneStrength:number;
         emptyPathTurnProp:number;
         maxTurnPerTick:number;
         STEER_STRENGTH:number;
@@ -77,6 +78,8 @@ export type Settings = {
             view:boolean;
             grid:boolean;
             pheromones:boolean;
+            pheromoneDebug:boolean;
+            energyDebug:boolean;
         }
     }
     map:{
@@ -103,6 +106,7 @@ export type Ant = {
     RenforcedPheromone2:Position[];
     distanceSinceLastChanged:number;
     energy:number;
+    baseEscapeTicks:number;
 }
 
 export type Food = {

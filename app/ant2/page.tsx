@@ -12,15 +12,16 @@ export default function SIMU() {
             <World setings={
                 {
                     ants:{
-                        speed:0.01,
-                        dropDelay:2,
-                        defaultAmount:1,
+                        speed:0.05,
+                        dropDelay:1,
+                        defaultAmount:50,
                         size:.75,
-                        maxEnergy:600,
+                        maxEnergy:200,
+                        pheromoneStrength:0.5,
                         emptyPathTurnProp:0.5,
-                        maxTurnPerTick:8,
-                        STEER_STRENGTH:0.15,
-                        energyConsumedPerTick:0.1,
+                        maxTurnPerTick:40,
+                        STEER_STRENGTH:0.3,
+                        energyConsumedPerTick:0.2,
                         returnThreeshold:600/6,
                         consume:{
                             meat:{
@@ -33,8 +34,8 @@ export default function SIMU() {
                             senseArea:4,
                             width:90,
                             pheromoneDetect:{
-                                range:2,
-                                distance:4,
+                                range:5,
+                                distance:6,
                                 backDistance:2.5,
                                 frontNumber:5,
                                 backNumber:3,
@@ -46,9 +47,9 @@ export default function SIMU() {
                         array:[{color:"brown",id:0,pos:{x:50,y:50,height:2,width:2},storage:{eggs:0,leave:0,meat:10}}]
                     },
                     food:{
-                        defaultAmount:10,
-                        foodPerSportMin:20,
-                        foodPerSportMax:150,
+                        defaultAmount:30,
+                        foodPerSportMin:250,
+                        foodPerSportMax:600,
                         size:.8,
                     },
                     map:{
@@ -56,12 +57,14 @@ export default function SIMU() {
                         height:100,
                     },
                     pheromone:{
-                        size:0.3,
+                        size:0.5,
                     },
                     user:{
                         display:{
                             grid:false,
                             pheromones:true,
+                            pheromoneDebug:true,
+                            energyDebug:true,
                             view:false,
                         }
                     },
