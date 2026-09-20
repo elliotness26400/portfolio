@@ -67,7 +67,8 @@ export const blogsDatas:Record<string,PageType> = {
                 {type:"str",text:"Before starting to solder the top case to the bottom part i took the cable to connect both of my case together and wire the button on the right case"},
                 {type:"img",alt:"bottom case with cable",url:"https://cdn.discordapp.com/attachments/1239688734212100096/1483892089052856501/IMG_2476.jpg?ex=69c03233&is=69bee0b3&hm=17b2643ccfbd60458b6470dc5fd529f6b12f6eed367a67d9f3fe1e8d3c6d30b6&"},
                 {type:"str",text:"Next step was to solder the matrix + slider of the right case to the cables, so that i could close it and only work on the part with the mcu."},
-                
+                {type:"str",text:"This sted completed i could start by soldering the pico to the pins so that it will not move when i will solder the rest"},
+
             ]
         }
     }
