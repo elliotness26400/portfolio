@@ -13,7 +13,7 @@ export default function SIMU() {
                 {
                     ants:{
                         speed:0.05,
-                        dropDelay:1,
+                        dropDelay:0.25,
                         defaultAmount:50,
                         capacity:25,
                         bodyWeight:{
@@ -23,12 +23,12 @@ export default function SIMU() {
                         },
                         size:.75,
                         maxEnergy:200,
-                        pheromoneStrength:0.5,
+                        pheromoneStrength:0.9,
                         emptyPathTurnProp:0.5,
                         maxTurnPerTick:40,
                         STEER_STRENGTH:0.3,
                         energyConsumedPerTick:0.2,
-                        returnThreeshold:0.6,
+                        returnThreeshold:0.7,
                         consume:{
                             meat:{
                                 energy:600,
@@ -64,7 +64,7 @@ export default function SIMU() {
                     },
                     pheromone:{
                         size:0.8,
-                        decay:0.02,
+                        decay:0.03,
                     },
                     user:{
                         display:{

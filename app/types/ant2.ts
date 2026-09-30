@@ -112,6 +112,7 @@ export type Ant = {
     capacity:number;
     RenforcedPheromone:Position[];
     RenforcedPheromone2:Position[];
+    lastPheromoneDrop?:Position;
     distanceSinceLastChanged:number;
     energy:number;
     maxEnergy:number;
