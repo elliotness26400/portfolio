@@ -15,6 +15,12 @@ export default function SIMU() {
                         speed:0.05,
                         dropDelay:1,
                         defaultAmount:50,
+                        capacity:25,
+                        bodyWeight:{
+                            min:0.75,
+                            max:1.25,
+                            reference:1,
+                        },
                         size:.75,
                         maxEnergy:200,
                         pheromoneStrength:0.5,
@@ -22,7 +28,7 @@ export default function SIMU() {
                         maxTurnPerTick:40,
                         STEER_STRENGTH:0.3,
                         energyConsumedPerTick:0.2,
-                        returnThreeshold:600/6,
+                        returnThreeshold:0.6,
                         consume:{
                             meat:{
                                 energy:600,
@@ -47,9 +53,9 @@ export default function SIMU() {
                         array:[{color:"brown",id:0,pos:{x:50,y:50,height:2,width:2},storage:{eggs:0,leave:0,meat:10}}]
                     },
                     food:{
-                        defaultAmount:30,
-                        foodPerSportMin:250,
-                        foodPerSportMax:600,
+                        defaultAmount:25,
+                        foodPerSportMin:100,
+                        foodPerSportMax:1000,
                         size:.8,
                     },
                     map:{
@@ -57,7 +63,8 @@ export default function SIMU() {
                         height:100,
                     },
                     pheromone:{
-                        size:0.5,
+                        size:0.8,
+                        decay:0.02,
                     },
                     user:{
                         display:{

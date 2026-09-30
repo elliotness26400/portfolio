@@ -31,6 +31,7 @@ export type Settings = {
     canvasHeight:number;
     pheromone:{
         size:number;
+        decay:number;
     }
     food:{
         foodPerSportMin:number;
@@ -44,6 +45,12 @@ export type Settings = {
     ants:{
         returnThreeshold:number;
         defaultAmount:number;
+        capacity:number;
+        bodyWeight:{
+            min:number;
+            max:number;
+            reference:number;
+        };
         speed:number;
         dropDelay:number;
         size:number;
@@ -93,6 +100,7 @@ type resourceType = "meat"|"leaf"|"none"
 
 export type Ant = {
     index:number;
+    bodyWeight:number;
     pos:Position;
     baseId:number;
     dir:number;
@@ -106,6 +114,9 @@ export type Ant = {
     RenforcedPheromone2:Position[];
     distanceSinceLastChanged:number;
     energy:number;
+    maxEnergy:number;
+    energyConsumedPerTick:number;
+    returnThreshold:number;
     baseEscapeTicks:number;
 }
 

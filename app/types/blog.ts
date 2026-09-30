@@ -32,6 +32,9 @@ export type MainType = {
 }
 
 export type PageType = {
+    createdAt:string;
+    tags:string[];
+    coverImage:string;
     header:HeaderType;
     main:MainType;
 }

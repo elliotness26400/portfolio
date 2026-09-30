@@ -126,6 +126,8 @@ export function World({setings}:{setings:Settings}) {
         setings.bases.array.forEach(base => {
         for (let i = 0; i < setings.ants.defaultAmount; i++) {
             antsTmp.push({
+            index:i,
+            bodyWeight:1,
             pos: { ...base.pos },
             baseId: base.id,
             dir: Math.random() * 360,
@@ -135,6 +137,11 @@ export function World({setings}:{setings:Settings}) {
             RenforcedPheromone: [],
             RenforcedPheromone2: [],
             distanceSinceLastChanged:0,
+            energy:100,
+            maxEnergy:100,
+            energyConsumedPerTick:0,
+            returnThreshold:0,
+            baseEscapeTicks:0,
             });
         }
         });
@@ -188,20 +195,20 @@ export function World({setings}:{setings:Settings}) {
 
                 if(setings.user.display.pheromones==true) {
                     // food pheromones
-                    if (food.strength > 0.1) {
-                        ctx.fillStyle = `rgba(255,0,0,${Math.min(food.strength / 10, 1)})`;
+                    if (food.strength > 0.01) {
+                        ctx.fillStyle = `rgba(255,0,0,${Math.sqrt(food.strength / (food.strength + 0.5))})`;
                         ctx.fillRect(px+(cellWidth*(1-setings.pheromone.size)/2), py+(cellHeight*(1-setings.pheromone.size)/2), cellWidth*setings.pheromone.size, cellHeight*setings.pheromone.size);
                     }
     
                     // home pheromones
-                    if (home.strength > 0.1) {
-                        ctx.fillStyle = `rgba(0,0,255,${Math.min(home.strength / 10, 1)})`;
+                    if (home.strength > 0.01) {
+                        ctx.fillStyle = `rgba(0,0,255,${Math.sqrt(home.strength / (home.strength + 0.5))})`;
                         ctx.fillRect(px+(cellWidth*(1-setings.pheromone.size)/2), py+(cellHeight*(1-setings.pheromone.size)/2), cellWidth*setings.pheromone.size, cellHeight*setings.pheromone.size);
                     }
     
                     // danger pheromones
-                    if (danger.strength > 0.1) {
-                        ctx.fillStyle = `rgba(128,0,128,${Math.min(danger.strength / 10, 1)})`;
+                    if (danger.strength > 0.01) {
+                        ctx.fillStyle = `rgba(128,0,128,${Math.sqrt(danger.strength / (danger.strength + 0.5))})`;
                         ctx.fillRect(px+(cellWidth*(1-setings.pheromone.size)/2), py+(cellHeight*(1-setings.pheromone.size)/2), cellWidth*setings.pheromone.size, cellHeight*setings.pheromone.size);
                     }   
                 }

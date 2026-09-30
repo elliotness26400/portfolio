@@ -2,6 +2,9 @@ import { PageType } from "../types/blog";
 
 export const blogsDatas:Record<string,PageType> = {
     "keypad1-4keys":{
+        createdAt:"2026-02-19",
+        tags:["electronique", "programmation", "impression 3D"],
+        coverImage:"https://cdn.discordapp.com/attachments/1239688734212100096/1474847604897485024/IMG_2367.jpg?ex=699b565e&is=699a04de&hm=a522a0ea5dfdb3fa75860a47cebe1597a6298a35e978dbf60bb7f04a84fa59b8&",
         header:{
             title:"First keypad (4 keys)",
             description:"I just finished up my first keypad build with 4keys and a raspberry pi pico. I used a 3D printed case and some mechanical switches. It was a fun project and I'm happy with how it turned out!",
@@ -33,6 +36,9 @@ export const blogsDatas:Record<string,PageType> = {
     },
 
     "split-keyboard-1":{
+        createdAt:"2026-03-08",
+        tags:["electronique", "programmation", "clavier", "impression 3D"],
+        coverImage:"https://cdn.discordapp.com/attachments/1239688734212100096/1474847604897485024/IMG_2367.jpg?ex=699b565e&is=699a04de&hm=a522a0ea5dfdb3fa75860a47cebe1597a6298a35e978dbf60bb7f04a84fa59b8&",
         header:{
             title:"Split keyboard V1",
             description:"This is my first ever split keyboard build, it's a 4*6*2 matrix and i used a raspberry pi pico",
