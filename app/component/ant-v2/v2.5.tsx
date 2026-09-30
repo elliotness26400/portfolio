@@ -247,12 +247,47 @@ export function World({setings}:{setings:Settings}) {
             }
         }
 
+        if (pheromoneLooking === "home") {
+            const localSearchRadius = 3;
+            const currentCellX = Math.floor(ant.pos.x);
+            const currentCellY = Math.floor(ant.pos.y);
+
+            for (let offsetY = -localSearchRadius; offsetY <= localSearchRadius; offsetY++) {
+                for (let offsetX = -localSearchRadius; offsetX <= localSearchRadius; offsetX++) {
+                    if (offsetX === 0 && offsetY === 0) continue;
+
+                    const cellX = (currentCellX + offsetX + setings.map.width) % setings.map.width;
+                    const cellY = (currentCellY + offsetY + setings.map.height) % setings.map.height;
+                    const square = mapRef.current[cellY]?.[cellX];
+                    const strength = square?.pheromones.home.strength || 0;
+                    if (!square || strength <= 0) continue;
+
+                    const sampleX = currentCellX + offsetX + 0.5;
+                    const sampleY = currentCellY + offsetY + 0.5;
+                    const angle = Math.atan2(sampleY - ant.pos.y, sampleX - ant.pos.x);
+                    pheromoneDensity.push({
+                        type: "home",
+                        strength,
+                        pos: square.pos,
+                        angle: (angle * 180 / Math.PI + 360) % 360,
+                    });
+                }
+            }
+        }
+
         // 3. Calculate Probabilities
         const detectedPheromones = pheromoneDensity.filter((pheromone) => pheromone.strength > 0);
-        const sum = detectedPheromones.reduce((acc, curr) => acc + curr.strength, 0);
+        const sum = detectedPheromones.reduce((acc, pheromone) => {
+            const steeringWeight = pheromoneLooking === "home"
+                ? Math.sqrt(pheromone.strength)
+                : pheromone.strength;
+            return acc + steeringWeight;
+        }, 0);
 
         detectedPheromones.forEach((pheromone) => {
-            pheromone.prop = pheromone.strength / sum;
+            pheromone.prop = (pheromoneLooking === "home"
+                ? Math.sqrt(pheromone.strength)
+                : pheromone.strength) / sum;
         });
 
         const strongestPheromone = detectedPheromones.reduce(
@@ -432,7 +467,7 @@ export function World({setings}:{setings:Settings}) {
                 setings.ants.bodyWeight.max,
             );
             const weightRatio = bodyWeight / setings.ants.bodyWeight.reference;
-            const maxEnergy = setings.ants.maxEnergy * weightRatio;
+            const maxEnergy = setings.ants.maxEnergy * Math.pow(weightRatio, 1.5);
             const capacity = Math.max(1, Math.round(setings.ants.capacity * weightRatio));
             const energyConsumedPerTick = setings.ants.energyConsumedPerTick * Math.pow(weightRatio, 0.75);
             const returnThreshold = maxEnergy * setings.ants.returnThreeshold;
@@ -560,6 +595,9 @@ export function World({setings}:{setings:Settings}) {
         antsRef.current.forEach(ant => {
             const px = ant.pos.x * cellWidth;
             const py = ant.pos.y * cellHeight;
+            const antSize = setings.ants.size * Math.sqrt(
+                ant.bodyWeight / setings.ants.bodyWeight.reference,
+            );
             if (ant.action === "survive") {
                 ctx.fillStyle = "#8b4513";
             } else if (ant.action === "home") {
@@ -579,15 +617,15 @@ export function World({setings}:{setings:Settings}) {
                 ctx.fillStyle = "black";
             }
             ctx.beginPath();
-            ctx.arc(px + cellWidth / 2, py + cellHeight / 2, cellWidth*setings.ants.size/2, 0, Math.PI * 2);
+            ctx.arc(px + cellWidth / 2, py + cellHeight / 2, cellWidth*antSize/2, 0, Math.PI * 2);
             ctx.fill();
 
             if (setings.user.display.energyDebug) {
                 const energyRatio = clamp(ant.energy / ant.maxEnergy, 0, 1);
-                const barWidth = cellWidth * setings.ants.size;
+                const barWidth = cellWidth * antSize;
                 const barHeight = 2;
                 const antCenterX = px + cellWidth / 2;
-                const antTop = py + cellHeight / 2 - cellWidth * setings.ants.size / 2;
+                const antTop = py + cellHeight / 2 - cellWidth * antSize / 2;
                 const barX = antCenterX - barWidth / 2;
                 const barY = antTop - 5;
 
