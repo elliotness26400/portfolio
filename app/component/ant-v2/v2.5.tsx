@@ -89,6 +89,11 @@ export function World({setings}:{setings:Settings}) {
         () => setings.bases.array.reduce((total, base) => total + base.storage.meat, 0),
     );
     const [foodBroughtIn, setFoodBroughtIn] = useState(0);
+    const [elapsedSeconds, setElapsedSeconds] = useState(0);
+    const [simulationStatus, setSimulationStatus] = useState<"ready" | "running" | "complete">("ready");
+    const simulationRunningRef = useRef(false);
+    const simulationStartTimeRef = useRef(0);
+    const elapsedMillisecondsRef = useRef(0);
     const initialized = useRef(false);
 
     const {canvasWidth,canvasHeight} = setings;
@@ -137,6 +142,13 @@ export function World({setings}:{setings:Settings}) {
         setFoodInBase(initialBaseFoodRef.current.reduce((total, base) => total + base.amount, 0));
         setFoodBroughtIn(0);
         init();
+        elapsedMillisecondsRef.current = 0;
+        setElapsedSeconds(0);
+        if (simulationRunningRef.current) {
+            simulationStartTimeRef.current = performance.now();
+        } else {
+            startLoop();
+        }
     }
     
 
@@ -733,9 +745,20 @@ export function World({setings}:{setings:Settings}) {
     }
 
     function startLoop() {
-        
-        function loop() {
+        if (simulationRunningRef.current) return;
 
+        simulationRunningRef.current = true;
+        simulationStartTimeRef.current = performance.now() - elapsedMillisecondsRef.current;
+        setSimulationStatus("running");
+
+        function loop() {
+            if (!simulationRunningRef.current) return;
+
+            elapsedMillisecondsRef.current = performance.now() - simulationStartTimeRef.current;
+            const currentElapsedSeconds = Math.floor(elapsedMillisecondsRef.current / 1000);
+            setElapsedSeconds((previousSeconds) =>
+                previousSeconds === currentElapsedSeconds ? previousSeconds : currentElapsedSeconds,
+            );
 
             antsRef.current.forEach((ant, i) => {
                 const htmlel = canvasRef.current;
@@ -899,6 +922,13 @@ export function World({setings}:{setings:Settings}) {
             antsRef.current = antsRef.current.filter((ant) => ant.energy > 0);
 
             draw();
+            if (antsRef.current.length === 0) {
+                elapsedMillisecondsRef.current = performance.now() - simulationStartTimeRef.current;
+                setElapsedSeconds(Math.floor(elapsedMillisecondsRef.current / 1000));
+                simulationRunningRef.current = false;
+                setSimulationStatus("complete");
+                return;
+            }
             requestAnimationFrame(loop);
         }
         requestAnimationFrame(loop);
@@ -945,6 +975,23 @@ export function World({setings}:{setings:Settings}) {
             <canvas className="simulation-canvas" ref={canvasRef} width={canvasWidth} height={canvasHeight} />
             <aside className="simulation-controls" aria-label="Simulation controls">
                 <h2>Simulation</h2>
+                <section className="simulation-stock" aria-label="Simulation run status">
+                    <h3>Run</h3>
+                    <dl>
+                        <div>
+                            <dt>Status</dt>
+                            <dd><output>{simulationStatus === "complete" ? "All ants dead" : simulationStatus === "running" ? "Running" : "Ready"}</output></dd>
+                        </div>
+                        <div>
+                            <dt>Elapsed</dt>
+                            <dd><output>{`${Math.floor(elapsedSeconds / 60)}:${String(elapsedSeconds % 60).padStart(2, "0")}`}</output></dd>
+                        </div>
+                        <div>
+                            <dt>Ants alive</dt>
+                            <dd><output>{antsRef.current.length}</output></dd>
+                        </div>
+                    </dl>
+                </section>
                 <section className="simulation-stock" aria-label="Food stores">
                     <h3>Food stores</h3>
                     <dl>

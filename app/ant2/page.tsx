@@ -28,7 +28,7 @@ export default function SIMU() {
                         maxTurnPerTick:40,
                         STEER_STRENGTH:0.3,
                         energyConsumedPerTick:0.2,
-                        foodForStaminaMultiplier:4.5,
+                        foodForStaminaMultiplier:20,
                         returnThreeshold:0.7,
                         consume:{
                             meat:{
