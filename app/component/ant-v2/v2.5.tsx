@@ -82,6 +82,13 @@ export function World({setings}:{setings:Settings}) {
     const antsRef = useRef<Array<Ant>>([]);
     const deadAntsRef = useRef<Array<Position>>([]);
     const [bases,setBases] = useState<Array<Base>>(setings.bases.array);
+    const initialBaseFoodRef = useRef(
+        setings.bases.array.map((base) => ({ id: base.id, amount: base.storage.meat })),
+    );
+    const [foodInBase, setFoodInBase] = useState(
+        () => setings.bases.array.reduce((total, base) => total + base.storage.meat, 0),
+    );
+    const [foodBroughtIn, setFoodBroughtIn] = useState(0);
     const initialized = useRef(false);
 
     const {canvasWidth,canvasHeight} = setings;
@@ -122,6 +129,13 @@ export function World({setings}:{setings:Settings}) {
 
     function restartSimulation() {
         deadAntsRef.current = [];
+        setings.bases.array.forEach((base) => {
+            const initialFood = initialBaseFoodRef.current.find((item) => item.id === base.id);
+            if (initialFood) base.storage.meat = initialFood.amount;
+        });
+        setBases([...setings.bases.array]);
+        setFoodInBase(initialBaseFoodRef.current.reduce((total, base) => total + base.amount, 0));
+        setFoodBroughtIn(0);
         init();
     }
     
@@ -811,21 +825,30 @@ export function World({setings}:{setings:Settings}) {
                                 ant.lastPheromoneDrop = undefined;
                                 ant.distanceSinceLastChanged=0;
                                 const carriedAmount = ant.load.amount;
-                                const carriedEnergy = ant.load.amount * setings.ants.consume.meat.energy;
                                 base.storage.meat += carriedAmount;
+                                if (carriedAmount > 0) {
+                                    setFoodBroughtIn((total) => total + carriedAmount);
+                                }
                                 ant.load.type="none";
                                 ant.load.amount=0;
-                                if(carriedEnergy > 0) {
-                                    ant.energy=clamp(ant.energy+carriedEnergy,0,ant.maxEnergy);
-                                } else if(base.storage.meat>0){
-                                    base.storage.meat=clamp(base.storage.meat-setings.ants.consume.meat.quantity,0,Infinity);
-                                    ant.energy=clamp(ant.energy+setings.ants.consume.meat.energy,0,ant.maxEnergy);
-                                } else {
-                                    ant.energy = Math.max(
-                                        ant.energy,
-                                        ant.returnThreshold + ant.energyConsumedPerTick * 2,
-                                    );
-                                }
+                                const foodEnergyPerUnit = setings.ants.consume.meat.quantity > 0
+                                    ? setings.ants.consume.meat.energy /
+                                        (setings.ants.consume.meat.quantity * Math.max(0.01, setings.ants.foodForStaminaMultiplier))
+                                    : 0;
+                                const staminaDeficit = Math.max(0, ant.maxEnergy - ant.energy);
+                                const foodNeeded = foodEnergyPerUnit > 0
+                                    ? staminaDeficit / foodEnergyPerUnit
+                                    : 0;
+                                const foodConsumed = Math.min(base.storage.meat, foodNeeded);
+                                base.storage.meat -= foodConsumed;
+                                ant.energy = clamp(
+                                    ant.energy + foodConsumed * foodEnergyPerUnit,
+                                    0,
+                                    ant.maxEnergy,
+                                );
+                                setFoodInBase(
+                                    bases.reduce((total, currentBase) => total + currentBase.storage.meat, 0),
+                                );
                                 ant.action=ant.energy > ant.returnThreshold ? "gathering" : "survive";
                             }
                         }
@@ -922,6 +945,19 @@ export function World({setings}:{setings:Settings}) {
             <canvas className="simulation-canvas" ref={canvasRef} width={canvasWidth} height={canvasHeight} />
             <aside className="simulation-controls" aria-label="Simulation controls">
                 <h2>Simulation</h2>
+                <section className="simulation-stock" aria-label="Food stores">
+                    <h3>Food stores</h3>
+                    <dl>
+                        <div>
+                            <dt>In base</dt>
+                            <dd><output>{foodInBase.toFixed(0)}</output></dd>
+                        </div>
+                        <div>
+                            <dt>Brought in</dt>
+                            <dd><output>{foodBroughtIn.toFixed(0)}</output></dd>
+                        </div>
+                    </dl>
+                </section>
                 <label>
                     Speed
                     <output>{controlValues.speed.toFixed(3)}</output>

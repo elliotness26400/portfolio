@@ -74,6 +74,36 @@
     font-size: 1.1rem;
 }
 
+.simulation-stock{
+    margin: 0 0 1rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid rgba(23, 35, 31, 0.25);
+    border-bottom: 1px solid rgba(23, 35, 31, 0.25);
+}
+
+.simulation-stock h3{
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+}
+
+.simulation-stock dl{
+    display: grid;
+    gap: 0.4rem;
+    margin: 0;
+}
+
+.simulation-stock dl div{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-size: 0.8rem;
+}
+
+.simulation-stock dd{
+    margin: 0;
+    font-weight: 700;
+}
+
 .simulation-controls label{
     display: grid;
     gap: 0.35rem;

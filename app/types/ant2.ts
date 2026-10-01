@@ -60,6 +60,7 @@ export type Settings = {
         maxTurnPerTick:number;
         STEER_STRENGTH:number;
         energyConsumedPerTick:number;
+        foodForStaminaMultiplier:number;
         consume : {
             meat:{
                 quantity:number;
