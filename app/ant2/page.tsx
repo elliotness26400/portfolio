@@ -32,7 +32,7 @@ export default function SIMU() {
                         returnThreeshold:0.7,
                         consume:{
                             meat:{
-                                energy:600,
+                                energy:100,
                                 quantity:1,
                             }
                         },
@@ -54,7 +54,7 @@ export default function SIMU() {
                         array:[{color:"brown",id:0,pos:{x:50,y:50,height:2,width:2},storage:{eggs:0,leave:0,meat:10}}],
                         eggPrice:25,
                         eggMinMult:4,
-                        eggDelay:5000,
+                        eggDelay:2000,
                     },
                     food:{
                         defaultAmount:25,

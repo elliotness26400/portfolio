@@ -483,6 +483,43 @@ export function World({setings}:{setings:Settings}) {
     }
 
     function energyHandling(ant:Ant){
+        if (ant.action === "home" && ant.load.amount <= 0) {
+            ant.load.amount = 0;
+            ant.load.type = "none";
+            ant.action = "survive";
+        }
+
+        const foodEnergyPerUnit = setings.ants.consume.meat.quantity > 0
+            ? setings.ants.consume.meat.energy /
+                (setings.ants.consume.meat.quantity * Math.max(0.01, setings.ants.foodForStaminaMultiplier))
+            : 0;
+
+        if (
+            ant.action === "home"
+            && ant.load.amount > 0
+            && ant.energy < ant.returnThreshold
+            && foodEnergyPerUnit > 0
+        ) {
+            const missingEnergy = Math.max(0, ant.maxEnergy - ant.energy);
+            const foodNeeded = missingEnergy / foodEnergyPerUnit;
+            const amountToConsume = Math.min(ant.load.amount, foodNeeded);
+
+            if (amountToConsume > 0) {
+                ant.load.amount = Math.max(0, ant.load.amount - amountToConsume);
+                ant.energy = clamp(
+                    ant.energy + amountToConsume * foodEnergyPerUnit,
+                    0,
+                    ant.maxEnergy,
+                );
+
+                if (ant.load.amount <= 0) {
+                    ant.load.amount = 0;
+                    ant.load.type = "none";
+                    ant.action = "survive";
+                }
+            }
+        }
+
         ant.energy=Math.max(0,(ant.energy-ant.energyConsumedPerTick));
 
 
@@ -645,10 +682,7 @@ export function World({setings}:{setings:Settings}) {
         antsRef.current.forEach(ant => {
             const px = ant.pos.x * cellWidth;
             const py = ant.pos.y * cellHeight;
-            const antSize = setings.ants.size * Math.pow(
-                ant.bodyWeight / setings.ants.bodyWeight.reference,
-                1.2,
-            );
+            const antSize = setings.ants.size * (0.75 + (ant.bodyWeight / setings.ants.bodyWeight.reference) * 0.5);
             if (ant.action === "survive") {
                 ctx.fillStyle = "#8b4513";
             } else if (ant.action === "home") {
