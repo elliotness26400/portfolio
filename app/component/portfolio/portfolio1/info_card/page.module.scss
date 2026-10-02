@@ -1,0 +1,146 @@
+.card {
+	--card-ink: #17231f;
+	--card-muted: #68736e;
+	--card-accent: #b44731;
+
+	display: flex;
+	flex-direction: column;
+	width: min(100%, 430px);
+	min-height: min(780px, calc(100svh - 64px));
+	overflow: hidden;
+	color: var(--card-ink);
+	background: #fff;
+	border-radius: 16px;
+	box-shadow: 0 22px 58px rgba(4, 18, 14, 0.16);
+	font-family: var(--font-geist-sans), "Avenir Next", sans-serif;
+	animation: card-arrive 700ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.imageFrame {
+	position: relative;
+	flex: 1 1 52%;
+	min-height: 280px;
+	margin: 26px 26px 0;
+	overflow: hidden;
+	background: #414a45;
+	border-radius: 8px;
+}
+
+.portrait {
+	object-fit: cover;
+	object-position: center 38%;
+	transition: transform 700ms cubic-bezier(0.2, 0.75, 0.25, 1);
+
+	.card:hover & {
+		transform: scale(1.025);
+	}
+}
+
+.details {
+	padding: 28px 28px 30px;
+	text-align: center;
+}
+
+.name {
+	margin: 0;
+	font-size: clamp(32px, 3.5vw, 44px);
+	font-weight: 600;
+	line-height: 1.12;
+	overflow-wrap: anywhere;
+}
+
+.description {
+	max-width: 30ch;
+	margin: 12px auto 0;
+	color: var(--card-muted);
+	font-size: 14px;
+	line-height: 1.65;
+}
+
+.socials {
+	display: flex;
+	justify-content: center;
+	gap: 18px;
+	margin-top: 22px;
+}
+
+.socialLink {
+	display: grid;
+	width: 42px;
+	height: 42px;
+	place-items: center;
+	color: var(--card-ink);
+	border-radius: 50%;
+	transition: color 160ms ease, background-color 160ms ease, transform 160ms ease;
+
+	&:hover,
+	&:focus-visible {
+		color: var(--card-accent);
+		background: #f5f6f4;
+		transform: translateY(-2px);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--card-accent);
+		outline-offset: 3px;
+	}
+}
+
+.socialIcon {
+	width: 21px;
+	height: 21px;
+	fill: none;
+	stroke: currentColor;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	stroke-width: 1.8;
+
+	path:first-child:last-child {
+		fill: currentColor;
+		stroke: none;
+	}
+}
+
+@keyframes card-arrive {
+	from {
+		opacity: 0;
+		transform: translateY(14px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (max-width: 700px) {
+	.card {
+		width: 100%;
+		min-height: min(730px, calc(100svh - 32px));
+	}
+
+	.imageFrame {
+		flex-basis: 48svh;
+		min-height: 300px;
+		margin: 20px 20px 0;
+	}
+
+	.details {
+		padding: 26px 24px 24px;
+	}
+
+	.name {
+		font-size: clamp(34px, 9vw, 44px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.card {
+		animation: none;
+	}
+
+	.portrait,
+	.socialLink {
+		transition: none;
+	}
+}

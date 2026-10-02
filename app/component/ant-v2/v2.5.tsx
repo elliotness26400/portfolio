@@ -483,12 +483,6 @@ export function World({setings}:{setings:Settings}) {
     }
 
     function energyHandling(ant:Ant){
-        if (ant.action === "home" && ant.load.amount <= 0) {
-            ant.load.amount = 0;
-            ant.load.type = "none";
-            ant.action = "survive";
-        }
-
         const foodEnergyPerUnit = setings.ants.consume.meat.quantity > 0
             ? setings.ants.consume.meat.energy /
                 (setings.ants.consume.meat.quantity * Math.max(0.01, setings.ants.foodForStaminaMultiplier))
@@ -515,7 +509,7 @@ export function World({setings}:{setings:Settings}) {
                 if (ant.load.amount <= 0) {
                     ant.load.amount = 0;
                     ant.load.type = "none";
-                    ant.action = "survive";
+                    ant.action = ant.energy > ant.returnThreshold ? "home" : "survive";
                 }
             }
         }
@@ -962,10 +956,12 @@ export function World({setings}:{setings:Settings}) {
                             if(reachedBaseBounds){
                                 reachedBase = true;
                                 ant.baseEscapeTicks = 30;
+                                const baseEscapeDistance =
+                                    Math.SQRT2 * baseContactHalfExtent + setings.ants.speed * 2;
                                 moveAntOutsideBase(
                                     ant,
                                     base,
-                                    setings.touchDistance + setings.ants.speed * 2,
+                                    baseEscapeDistance,
                                 );
                                 ant.RenforcedPheromone=[];
                                 ant.RenforcedPheromone2=[];
