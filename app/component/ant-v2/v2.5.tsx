@@ -91,10 +91,20 @@ export function World({setings}:{setings:Settings}) {
     const [foodBroughtIn, setFoodBroughtIn] = useState(0);
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [simulationStatus, setSimulationStatus] = useState<"ready" | "running" | "complete">("ready");
+    const [eggsLaid, setEggsLaid] = useState(0);
+    const [antsDead, setAntsDead] = useState(0);
+    const [antsAlive, setAntsAlive] = useState(
+        () => setings.bases.array.reduce((total, base) => total + setings.ants.defaultAmount, 0),
+    );
+    const [everAlive, setEverAlive] = useState(
+        () => setings.bases.array.reduce((total, base) => total + setings.ants.defaultAmount, 0),
+    );
+    const [spawnCooldownMs, setSpawnCooldownMs] = useState(0);
     const simulationRunningRef = useRef(false);
     const simulationStartTimeRef = useRef(0);
     const elapsedMillisecondsRef = useRef(0);
     const initialized = useRef(false);
+    const baseSpawnCooldownRef = useRef<Record<number, number>>({});
 
     const {canvasWidth,canvasHeight} = setings;
     const cellWidth = canvasWidth / setings.map.width;
@@ -134,6 +144,7 @@ export function World({setings}:{setings:Settings}) {
 
     function restartSimulation() {
         deadAntsRef.current = [];
+        baseSpawnCooldownRef.current = {};
         setings.bases.array.forEach((base) => {
             const initialFood = initialBaseFoodRef.current.find((item) => item.id === base.id);
             if (initialFood) base.storage.meat = initialFood.amount;
@@ -141,6 +152,10 @@ export function World({setings}:{setings:Settings}) {
         setBases([...setings.bases.array]);
         setFoodInBase(initialBaseFoodRef.current.reduce((total, base) => total + base.amount, 0));
         setFoodBroughtIn(0);
+        setAntsDead(0);
+        setEggsLaid(0);
+        setAntsAlive(setings.bases.array.reduce((total, base) => total + setings.ants.defaultAmount, 0));
+        setEverAlive(setings.bases.array.reduce((total, base) => total + setings.ants.defaultAmount, 0));
         init();
         elapsedMillisecondsRef.current = 0;
         setElapsedSeconds(0);
@@ -150,7 +165,37 @@ export function World({setings}:{setings:Settings}) {
             startLoop();
         }
     }
-    
+
+    function createAntForBase(base: Base, index: number): Ant {
+        const bodyWeight = getRandomArbitrary(
+            setings.ants.bodyWeight.min,
+            setings.ants.bodyWeight.max,
+        );
+        const weightRatio = bodyWeight / setings.ants.bodyWeight.reference;
+        const maxEnergy = setings.ants.maxEnergy * Math.pow(weightRatio, 1.5);
+        const capacity = Math.max(1, Math.round(setings.ants.capacity * weightRatio));
+        const energyConsumedPerTick = setings.ants.energyConsumedPerTick * Math.pow(weightRatio, 0.75);
+        const returnThreshold = maxEnergy * setings.ants.returnThreeshold;
+
+        return {
+            pos: { ...base.pos },
+            bodyWeight,
+            baseId: base.id,
+            dir: Math.random() * 360,
+            action: "gathering",
+            load: { type: "none", amount: 0 },
+            capacity,
+            RenforcedPheromone: [],
+            RenforcedPheromone2: [],
+            distanceSinceLastChanged:0,
+            energy:maxEnergy,
+            maxEnergy,
+            energyConsumedPerTick,
+            returnThreshold,
+            baseEscapeTicks:0,
+            index,
+        };
+    }
 
 
     function getNearbyCells(x: number, y: number, radius: number) {
@@ -486,36 +531,9 @@ export function World({setings}:{setings:Settings}) {
 
         // ants
         const antsTmp: Ant[] = [];
-        setings.bases.array.forEach(base => {
+        setings.bases.array.forEach((base) => {
         for (let i = 0; i < setings.ants.defaultAmount; i++) {
-            const bodyWeight = getRandomArbitrary(
-                setings.ants.bodyWeight.min,
-                setings.ants.bodyWeight.max,
-            );
-            const weightRatio = bodyWeight / setings.ants.bodyWeight.reference;
-            const maxEnergy = setings.ants.maxEnergy * Math.pow(weightRatio, 1.5);
-            const capacity = Math.max(1, Math.round(setings.ants.capacity * weightRatio));
-            const energyConsumedPerTick = setings.ants.energyConsumedPerTick * Math.pow(weightRatio, 0.75);
-            const returnThreshold = maxEnergy * setings.ants.returnThreeshold;
-
-            antsTmp.push({
-            pos: { ...base.pos },
-            bodyWeight,
-            baseId: base.id,
-            dir: Math.random() * 360,
-            action: "gathering",
-            load: { type: "none", amount: 0 },
-            capacity,
-            RenforcedPheromone: [],
-            RenforcedPheromone2: [],
-            distanceSinceLastChanged:0,
-            energy:maxEnergy,
-            maxEnergy,
-            energyConsumedPerTick,
-            returnThreshold,
-            baseEscapeTicks:0,
-            index:i,
-            });
+            antsTmp.push(createAntForBase(base, antsTmp.length));
         }
         });
         antsRef.current = antsTmp;
@@ -629,7 +647,7 @@ export function World({setings}:{setings:Settings}) {
             const py = ant.pos.y * cellHeight;
             const antSize = setings.ants.size * Math.pow(
                 ant.bodyWeight / setings.ants.bodyWeight.reference,
-                1.7,
+                1.2,
             );
             if (ant.action === "survive") {
                 ctx.fillStyle = "#8b4513";
@@ -778,6 +796,26 @@ export function World({setings}:{setings:Settings}) {
             setElapsedSeconds((previousSeconds) =>
                 previousSeconds === currentElapsedSeconds ? previousSeconds : currentElapsedSeconds,
             );
+
+            setings.bases.array.forEach((base) => {
+                const now = performance.now();
+                const lastSpawnAt = baseSpawnCooldownRef.current[base.id] ?? 0;
+                if (
+                    base.storage.meat > setings.bases.eggMinMult * setings.bases.eggPrice &&
+                    base.storage.meat >= setings.bases.eggPrice &&
+                    now - lastSpawnAt >= setings.bases.eggDelay
+                ) {
+                    base.storage.meat -= setings.bases.eggPrice;
+                    baseSpawnCooldownRef.current[base.id] = now;
+                    antsRef.current.push(createAntForBase(base, antsRef.current.length));
+                    setEggsLaid((current) => current + 1);
+                    setEverAlive((current) => current + 1);
+                    setAntsAlive(antsRef.current.length);
+                    setFoodInBase(
+                        setings.bases.array.reduce((total, currentBase) => total + currentBase.storage.meat, 0),
+                    );
+                }
+            });
 
             antsRef.current.forEach((ant, i) => {
                 const htmlel = canvasRef.current;
@@ -989,7 +1027,12 @@ export function World({setings}:{setings:Settings}) {
 
             });
 
+            const deadThisTick = antsRef.current.length - antsRef.current.filter((ant) => ant.energy > 0).length;
             antsRef.current = antsRef.current.filter((ant) => ant.energy > 0);
+            if (deadThisTick > 0) {
+                setAntsDead((current) => current + deadThisTick);
+                setAntsAlive(antsRef.current.length);
+            }
 
             draw();
             if (antsRef.current.length === 0) {
@@ -1039,7 +1082,21 @@ export function World({setings}:{setings:Settings}) {
     
         return () => clearInterval(id);
     }, []);
-    
+
+    useEffect(() => {
+        const updateSpawnCooldown = () => {
+            const baseCooldowns = setings.bases.array.map((base) => {
+                const lastSpawn = baseSpawnCooldownRef.current[base.id] ?? 0;
+                return Math.max(0, setings.bases.eggDelay - (performance.now() - lastSpawn));
+            });
+            setSpawnCooldownMs(baseCooldowns.length > 0 ? Math.min(...baseCooldowns) : 0);
+        };
+
+        updateSpawnCooldown();
+        const id = window.setInterval(updateSpawnCooldown, 100);
+        return () => window.clearInterval(id);
+    }, [setings.bases.eggDelay, setings.bases.array]);
+
     return (
         <div className="simulation-layout">
             <canvas className="simulation-canvas" ref={canvasRef} width={canvasWidth} height={canvasHeight} />
@@ -1057,8 +1114,24 @@ export function World({setings}:{setings:Settings}) {
                             <dd><output>{`${Math.floor(elapsedSeconds / 60)}:${String(elapsedSeconds % 60).padStart(2, "0")}`}</output></dd>
                         </div>
                         <div>
+                            <dt>Spawn cooldown</dt>
+                            <dd><output>{(spawnCooldownMs / 1000).toFixed(1)}s</output></dd>
+                        </div>
+                        <div>
                             <dt>Ants alive</dt>
-                            <dd><output>{antsRef.current.length}</output></dd>
+                            <dd><output>{antsAlive}</output></dd>
+                        </div>
+                        <div>
+                            <dt>Eggs laid</dt>
+                            <dd><output>{eggsLaid}</output></dd>
+                        </div>
+                        <div>
+                            <dt>Ants dead</dt>
+                            <dd><output>{antsDead}</output></dd>
+                        </div>
+                        <div>
+                            <dt>Ever alive</dt>
+                            <dd><output>{everAlive}</output></dd>
                         </div>
                     </dl>
                 </section>

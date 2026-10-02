@@ -51,7 +51,10 @@ export default function SIMU() {
                         }
                     },
                     bases:{
-                        array:[{color:"brown",id:0,pos:{x:50,y:50,height:2,width:2},storage:{eggs:0,leave:0,meat:10}}]
+                        array:[{color:"brown",id:0,pos:{x:50,y:50,height:2,width:2},storage:{eggs:0,leave:0,meat:10}}],
+                        eggPrice:25,
+                        eggMinMult:4,
+                        eggDelay:5000,
                     },
                     food:{
                         defaultAmount:25,

@@ -41,6 +41,9 @@ export type Settings = {
     };
     bases:{
         array:Array<Base>;
+        eggPrice:number;
+        eggMinMult:number;
+        eggDelay:number;
     }
     ants:{
         returnThreeshold:number;
