@@ -17,8 +17,8 @@ export default function SIMU() {
                         defaultAmount:50,
                         capacity:25,
                         bodyWeight:{
-                            min:0.75,
-                            max:1.25,
+                            min:0.60,
+                            max:1.4,
                             reference:1,
                         },
                         size:.75,
@@ -65,7 +65,7 @@ export default function SIMU() {
                     },
                     pheromone:{
                         size:0.8,
-                        decay:0.03,
+                        decay:0.05,
                     },
                     user:{
                         display:{

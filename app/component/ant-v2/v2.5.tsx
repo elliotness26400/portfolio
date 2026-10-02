@@ -10,9 +10,9 @@ import { Cell } from "./cell";
 import { pheromoneTypes } from "@/app/types/ant";
 
 function getShortestAngleDelta(fromAngle: number, toAngle: number): number {
-    let diff = (toAngle - fromAngle) % 360;
-    if (diff < -180) diff += 360;
-    if (diff > 180) diff -= 360;
+    const diff = (toAngle - fromAngle) % 360;
+    if (diff < -180) return diff + 360;
+    if (diff > 180) return diff - 360;
     return diff;
 }
 
@@ -32,7 +32,7 @@ function absoluteValue(x:number){
 }
 
 function angleDifference(a: number, b: number) {
-    let diff = (a - b + 180) % 360 - 180;
+    const diff = (a - b + 180) % 360 - 180;
     return Math.abs(diff);
 }
 
@@ -524,7 +524,7 @@ export function World({setings}:{setings:Settings}) {
     }
 
     function sampleProbabilities(items: {type:PheromoneTypes;strength:number;pos:Position;angle:number;prop?:number;}[]):{tmpDir:number,strength:number}{
-        let r = Math.random();
+        const r = Math.random();
         let acc = 0;
         for (const e of items) {
             acc += e.prop!;
@@ -611,6 +611,12 @@ export function World({setings}:{setings:Settings}) {
                 if (cell.foods.amount > 0.5 && cell.foods.type !== "none") {
                     ctx.fillStyle = (cell.foods.type === "meat" ? "red" : "green");
                     ctx.fillRect(px+(cellWidth*(1-setings.food.size)/2), py+(cellHeight*(1-setings.food.size)/2), cellWidth*setings.food.size, cellHeight*setings.food.size);
+
+                    ctx.font = `${Math.max(18, cellWidth * 0.48)}px sans-serif`;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                    ctx.fillText(Math.max(0, Math.round(cell.foods.amount)).toString(), px + cellWidth / 2, py + cellHeight / 2 + cellHeight * 0.08);
                 }
 
 
@@ -621,8 +627,9 @@ export function World({setings}:{setings:Settings}) {
         antsRef.current.forEach(ant => {
             const px = ant.pos.x * cellWidth;
             const py = ant.pos.y * cellHeight;
-            const antSize = setings.ants.size * Math.sqrt(
+            const antSize = setings.ants.size * Math.pow(
                 ant.bodyWeight / setings.ants.bodyWeight.reference,
+                1.7,
             );
             if (ant.action === "survive") {
                 ctx.fillStyle = "#8b4513";
@@ -645,6 +652,18 @@ export function World({setings}:{setings:Settings}) {
             ctx.beginPath();
             ctx.arc(px + cellWidth / 2, py + cellHeight / 2, cellWidth*antSize/2, 0, Math.PI * 2);
             ctx.fill();
+
+            if (ant.load.amount > 0) {
+                const labelX = px + cellWidth / 2;
+                const labelY = py + cellHeight / 2 - cellWidth * antSize / 2 - 6;
+                ctx.font = `${Math.max(16, cellWidth * 0.56)}px sans-serif`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "bottom";
+                ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                ctx.fillText(Math.round(ant.load.amount).toString(), labelX, labelY);
+                ctx.fillStyle = ant.load.type === "meat" ? "#ffeb3b" : "#a5d6a7";
+                ctx.fillText(Math.round(ant.load.amount).toString(), labelX, labelY - 1);
+            }
 
             if (setings.user.display.energyDebug) {
                 const energyRatio = clamp(ant.energy / ant.maxEnergy, 0, 1);
@@ -782,20 +801,21 @@ export function World({setings}:{setings:Settings}) {
                 const antCenter = {x:ant.pos.x+(cellWidth*(1-setings.ants.size)/2),y:ant.pos.y+(cellWidth*(1-setings.ants.size)/2)};
                 switch (action) {
                     case "gathering":
+                        const nearbyFood = nearbyCells.flat().filter(cell => {
+                            const {dist,deg} = distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellWidth*(1-setings.food.size)/2)});
+                            const angleFromHeading = Math.abs(getShortestAngleDelta(ant.dir, deg));
+                            return cell.foods.amount > 0 && cell.foods.type !== "none" && ((compareSquaredDistances(dist,setings.ants.view.length)&& angleFromHeading <= setings.ants.view.width / 2)|| (compareSquaredDistances(dist,setings.ants.view.senseArea)));
+                        }).map(cell => ({
+                            ...cell.foods,pos:{x:cell.pos.x,y:cell.pos.y,dist:distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellWidth*(1-setings.food.size)/2)}).dist,deg:distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellWidth*(1-setings.food.size)/2)}).deg}
+                        }));
 
-                        if(ant.energy<ant.returnThreshold){
-                            // Missing energy, going back to nest
+                        const canLikelyReachFoodBeforeDying = nearbyFood.length > 0 && ant.energy > 0;
+
+                        if(ant.energy < ant.returnThreshold && !canLikelyReachFoodBeforeDying){
+                            // Missing energy and no nearby food in reach: going back to nest
                             ant.action="survive";
                             ant.distanceSinceLastChanged=0;
-                        }else{
-                            const nearbyFood = nearbyCells.flat().filter(cell => {
-                                const {dist,deg} = distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellWidth*(1-setings.food.size)/2)});
-                                const angleFromHeading = Math.abs(getShortestAngleDelta(ant.dir, deg));
-                                return cell.foods.amount > 0 && cell.foods.type !== "none" && ((compareSquaredDistances(dist,setings.ants.view.length)&& angleFromHeading <= setings.ants.view.width / 2)|| (compareSquaredDistances(dist,setings.ants.view.senseArea)));
-                            }).map(cell => ({
-                                ...cell.foods,pos:{x:cell.pos.x,y:cell.pos.y,dist:distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellWidth*(1-setings.food.size)/2)}).dist,deg:distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellWidth*(1-setings.food.size)/2)}).deg}
-                            }));
-    
+                        }else if(nearbyFood.length > 0){
                             const closest = nearbyFood.sort((a, b) => a.pos.dist - b.pos.dist);
             
                             if(closest[0]?.pos.deg!==undefined){
@@ -808,11 +828,25 @@ export function World({setings}:{setings:Settings}) {
                                     ant.action="home";
                                     ant.dir = (ant.dir + 180) % 360;
                                     ant.distanceSinceLastChanged=0;
-                                    ant.load.type=closest[0].type;
                                     const closeCell = mapRef.current[closest[0].pos.y][closest[0].pos.x];
                                     const gatherAmount = Math.min(closest[0].amount, ant.capacity);
+                                    const foodEnergyPerUnit = setings.ants.consume.meat.quantity > 0
+                                        ? setings.ants.consume.meat.energy /
+                                            (setings.ants.consume.meat.quantity * Math.max(0.01, setings.ants.foodForStaminaMultiplier))
+                                        : 0;
+                                    const staminaDeficit = Math.max(0, ant.maxEnergy - ant.energy);
+                                    const foodNeeded = foodEnergyPerUnit > 0 ? staminaDeficit / foodEnergyPerUnit : 0;
+                                    const staminaFromGrabbedFood = Math.min(gatherAmount, foodNeeded);
+                                    const carriedAmount = Math.max(0, gatherAmount - staminaFromGrabbedFood);
+
                                     closeCell.foods.amount -= gatherAmount;
-                                    ant.load.amount=gatherAmount;
+                                    ant.load.type = carriedAmount > 0 ? closest[0].type : "none";
+                                    ant.load.amount = carriedAmount;
+                                    ant.energy = clamp(
+                                        ant.energy + staminaFromGrabbedFood * foodEnergyPerUnit,
+                                        0,
+                                        ant.maxEnergy,
+                                    );
                                     if(closeCell.foods.amount<=0){
                                         closeCell.foods.amount=0;
                                         closeCell.foods.type="none";
@@ -827,6 +861,24 @@ export function World({setings}:{setings:Settings}) {
 
                         break;
                     default: // Home || Surviving
+                        if (ant.action === "survive") {
+                            const visibleFood = nearbyCells.flat().filter(cell => {
+                                const {dist,deg} = distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellHeight*(1-setings.food.size)/2)});
+                                const angleFromHeading = Math.abs(getShortestAngleDelta(ant.dir, deg));
+                                return cell.foods.amount > 0 && cell.foods.type !== "none" && ((compareSquaredDistances(dist,setings.ants.view.length)&& angleFromHeading <= setings.ants.view.width / 2)|| (compareSquaredDistances(dist,setings.ants.view.senseArea)));
+                            }).map(cell => ({
+                                ...cell.foods,pos:{x:cell.pos.x,y:cell.pos.y,dist:distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellHeight*(1-setings.food.size)/2)}).dist,deg:distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellHeight*(1-setings.food.size)/2)}).deg}
+                            }));
+
+                            if (visibleFood.length > 0) {
+                                const closestFood = visibleFood.sort((a, b) => a.pos.dist - b.pos.dist)[0];
+                                if (closestFood?.pos.deg !== undefined) {
+                                    ant.action = "gathering";
+                                    ant.dir = closestFood.pos.deg;
+                                }
+                            }
+                        }
+
                         const base = bases.find(b => b.id === baseId);
 
                         if(base){
@@ -903,7 +955,25 @@ export function World({setings}:{setings:Settings}) {
                         compareSquaredDistances(baseDirection.dist, setings.ants.view.senseArea)
                     );
 
-                    if (baseInView && baseDirection) {
+                    if (ant.action === "survive") {
+                        const visibleFood = nearbyCells.flat().filter(cell => {
+                            const {dist,deg} = distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellHeight*(1-setings.food.size)/2)});
+                            const angleFromHeading = Math.abs(getShortestAngleDelta(ant.dir, deg));
+                            return cell.foods.amount > 0 && cell.foods.type !== "none" && ((compareSquaredDistances(dist,setings.ants.view.length)&& angleFromHeading <= setings.ants.view.width / 2)|| (compareSquaredDistances(dist,setings.ants.view.senseArea)));
+                        }).map(cell => ({
+                            ...cell.foods,pos:{x:cell.pos.x,y:cell.pos.y,dist:distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellHeight*(1-setings.food.size)/2)}).dist,deg:distanceAndAngleP1toP2(antCenter, {x:cell.pos.x+(cellWidth*(1-setings.food.size)/2),y:cell.pos.y+(cellHeight*(1-setings.food.size)/2)}).deg}
+                        }));
+
+                        const closestFood = visibleFood.sort((a, b) => a.pos.dist - b.pos.dist)[0];
+                        if (closestFood?.pos.deg !== undefined) {
+                            ant.action = "gathering";
+                            ant.dir = closestFood.pos.deg;
+                        } else if (baseInView && baseDirection) {
+                            ant.dir = baseDirection.deg;
+                        } else {
+                            pheromoneSensing(ant);
+                        }
+                    } else if (baseInView && baseDirection) {
                         ant.dir = baseDirection.deg;
                     } else {
                         pheromoneSensing(ant);
