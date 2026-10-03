@@ -1,7 +1,7 @@
 'use client'
 
 import React, { forwardRef } from "react";
-import style from "./main.module.scss";
+import style from "./page.module.scss";
 
 export function Tools({data}:{data:{}}){
 
