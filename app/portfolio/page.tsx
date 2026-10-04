@@ -8,17 +8,18 @@ import { Projects } from "../component/portfolio/portfolio1/presentation/project
 import { Home } from "../component/portfolio/portfolio1/presentation/home/main";
 import { Experience } from "../component/portfolio/portfolio1/presentation/experience/main";
 import { Contact } from "../component/portfolio/portfolio1/presentation/contact/main";
+import { PortfolioNav, type PortfolioNavItem } from "../component/portfolio/portfolio1/navigation/main";
 import style from "./page.module.scss";
 
-const navItems = [
-    { label: "Home", href: "#home", icon: (
+const navItems: PortfolioNavItem[] = [
+    { id: "home", label: "Home", href: "#home", icon: (
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M3 10.5 12 3l9 7.5" />
             <path d="M5 9.5V20h14V9.5" />
             <path d="M10 20v-6h4v6" />
         </svg>
     ) },
-    { label: "All Projects", href: "#projects", icon: (
+    { id: "projects", label: "All Projects", href: "#projects", icon: (
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <rect x="3.5" y="4.5" width="7" height="7" rx="1.5" />
             <rect x="13.5" y="4.5" width="7" height="4.5" rx="1.5" />
@@ -26,14 +27,14 @@ const navItems = [
             <rect x="3.5" y="13.5" width="7" height="6" rx="1.5" />
         </svg>
     ) },
-    { label: "Portfolio", href: "#portfolio", icon: (
+    { id: "portfolio", label: "Portfolio", href: "#portfolio", icon: (
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h11A2.5 2.5 0 0 1 20 8.5v7A2.5 2.5 0 0 1 17.5 18h-11A2.5 2.5 0 0 1 4 15.5v-7Z" />
             <path d="M8 6V4.5A1.5 1.5 0 0 1 9.5 3h5A1.5 1.5 0 0 1 16 4.5V6" />
             <path d="M8 12h8" />
         </svg>
     ) },
-    { label: "About me", href: "#about", icon: (
+    { id: "about", label: "About me", href: "#about", icon: (
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="8" r="3.5" />
             <path d="M5 19.5c.9-2.9 3.2-4.5 7-4.5s6.1 1.6 7 4.5" />
@@ -69,21 +70,11 @@ export default function Portfolio() {
     return (
         <div className={style.portfolio}>
             <div className={`${style.navShell} ${isLoaded ? style.loaded : ""}`}>
-                <nav
-                    className={`${style.nav} ${isNavVisible ? style.visible : style.hidden}`}
-                    aria-label="Main navigation"
-                >
-                    <ul className={style.navList}>
-                        {navItems.map(({ label, href, icon }) => (
-                            <li key={label} className={style.navItem}>
-                                <a href={href} className={style.navLink} aria-label={label} title={label}>
-                                    <span className={style.icon}>{icon}</span>
-                                    <span className={style.label}>{label}</span>
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
+                <PortfolioNav
+                    items={navItems}
+                    currentPage="portfolio"
+                    isVisible={isNavVisible}
+                />
             </div>
 
             <div className={style.background}></div>

@@ -1,16 +1,69 @@
 'use client'
 
-import React, { forwardRef } from "react";
+import React from "react";
 import style from "./page.module.scss";
 
-export function Projects({data}:{data:{}}){
+type ProjectItem = {
+    title: string;
+    description: string;
+    image: string;
+    href: string;
+};
 
+const projects: ProjectItem[] = [
+    {
+        title: "Aster Studio",
+        description: "A polished brand experience for a creative studio, focused on storytelling and product clarity.",
+        image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
+        href: "#"
+    },
+    {
+        title: "Northstar App",
+        description: "A SaaS dashboard redesign that simplified complex workflows and improved conversion paths.",
+        image: "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?auto=format&fit=crop&w=900&q=80",
+        href: "#"
+    },
+    {
+        title: "Luma Commerce",
+        description: "An ecommerce interface concept crafted to turn browsing into a more guided, confident experience.",
+        image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80",
+        href: "#"
+    }
+];
+
+export function Projects({ data }: { data: {} }) {
     const {} = data;
 
     return (
-        <div>
-            <h1>Projects</h1>
-        </div>
-    );
+        <section className={style.projects}>
+            <div className={style.header}>
+                <h2>
+                    <span>RECENT</span>
+                    <span>PROJECTS</span>
+                </h2>
+            </div>
 
-};
+            <div className={style.list}>
+                {projects.map((project) => (
+                    <a key={project.title} href={project.href} className={style.card}>
+                        <div className={style.imageWrap}>
+                            <img src={project.image} alt={project.title} />
+                        </div>
+
+                        <div className={style.content}>
+                            <h3>{project.title}</h3>
+                            <p>{project.description}</p>
+                        </div>
+
+                        <div className={style.arrow} aria-hidden="true">
+                            <svg viewBox="0 0 24 24" className={style.arrowIcon}>
+                                <path d="M5 12h12" />
+                                <path d="M13 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </a>
+                ))}
+            </div>
+        </section>
+    );
+}

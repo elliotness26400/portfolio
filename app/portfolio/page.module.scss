@@ -159,6 +159,8 @@
 			width: 55%;
 			height: auto;
 			min-height: calc(100vh - 72px);
+			padding-right: clamp(36px, 8vw, 120px);
+			box-sizing: border-box;
 		}
 	}
 }
