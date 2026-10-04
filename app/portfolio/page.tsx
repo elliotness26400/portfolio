@@ -42,57 +42,55 @@ const navItems = [
 ];
 
 export default function Portfolio() {
+    const [isLoaded, setIsLoaded] = useState(false);
     const [isNavVisible, setIsNavVisible] = useState(true);
     const lastScrollY = useRef(0);
 
     useEffect(() => {
+        const frame = window.requestAnimationFrame(() => setIsLoaded(true));
+
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
+            const shouldHide = currentScrollY > 24 && currentScrollY > lastScrollY.current;
 
-            if (currentScrollY <= 16) {
-                setIsNavVisible(true);
-            } else if (currentScrollY > lastScrollY.current) {
-                setIsNavVisible(false);
-            } else {
-                setIsNavVisible(true);
-            }
-
+            setIsNavVisible(!shouldHide);
             lastScrollY.current = currentScrollY;
         };
 
         window.addEventListener("scroll", handleScroll, { passive: true });
         handleScroll();
 
-        return () => window.removeEventListener("scroll", handleScroll);
+        return () => {
+            window.cancelAnimationFrame(frame);
+            window.removeEventListener("scroll", handleScroll);
+        };
     }, []);
-
 
     return (
         <div className={style.portfolio}>
-
-            <nav
-                className={`${style.nav} ${isNavVisible ? style.visible : style.hidden}`}
-                aria-label="Main navigation"
-            >
-                <ul className={style.navList}>
-                    {navItems.map(({ label, href, icon }) => (
-                        <li key={label} className={style.navItem}>
-                            <a href={href} className={style.navLink} aria-label={label} title={label}>
-                                <span className={style.icon}>{icon}</span>
-                                <span className={style.label}>{label}</span>
-                            </a>
-                        </li>
-                    ))}
-                </ul>
-            </nav>
-
-            <div className={style.background}>
+            <div className={`${style.navShell} ${isLoaded ? style.loaded : ""}`}>
+                <nav
+                    className={`${style.nav} ${isNavVisible ? style.visible : style.hidden}`}
+                    aria-label="Main navigation"
+                >
+                    <ul className={style.navList}>
+                        {navItems.map(({ label, href, icon }) => (
+                            <li key={label} className={style.navItem}>
+                                <a href={href} className={style.navLink} aria-label={label} title={label}>
+                                    <span className={style.icon}>{icon}</span>
+                                    <span className={style.label}>{label}</span>
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
             </div>
 
-            <div className={style.presentation}>
+            <div className={style.background}></div>
 
-                <div className={style.card_container}>
-                    <InfoCard data={{}} />
+            <div className={style.presentation}>
+                <div className={`${style.card_container} ${isLoaded ? style.loaded : ""}`}>
+                    <InfoCard data={{ name: "Deconinck Elliot" }} />
                 </div>
 
                 <div className={style.slider_container}>
@@ -104,9 +102,7 @@ export default function Portfolio() {
                         <Contact data={{}} />
                     </SliderPart>
                 </div>
-
             </div>
-
         </div>
-    )
+    );
 }

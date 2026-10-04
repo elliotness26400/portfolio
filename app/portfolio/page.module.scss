@@ -1,30 +1,40 @@
-.portfolio{
-
-    .nav{
-        position: fixed;
+.portfolio {
+	.navShell {
+		position: fixed;
 		top: 24px;
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 30;
+		pointer-events: none;
+
+		&.loaded {
+			animation: navShellIn 650ms cubic-bezier(0.2, 0.75, 0.25, 1) 80ms both;
+		}
+	}
+
+	.nav {
+		position: relative;
+		display: inline-flex;
 		padding: 6px 14px;
 		border-radius: 12px;
-		background: rgba(255, 255, 255, 0.04);
-		backdrop-filter: blur(10px);
-		border: 1px solid rgba(255, 255, 255, 0.08);
-		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+		background: rgba(22, 25, 30, 0.46);
+		backdrop-filter: blur(12px) saturate(140%);
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
 		opacity: 1;
-		transform: translateX(-50%) translateY(0);
+		transform: translateY(0);
 		transition: opacity 220ms ease, transform 220ms ease;
-
-		&.hidden {
-			opacity: 0;
-			transform: translateX(-50%) translateY(-18px);
-			pointer-events: none;
-		}
+		pointer-events: auto;
 
 		&.visible {
 			opacity: 1;
-			transform: translateX(-50%) translateY(0);
+			transform: translateY(0);
+		}
+
+		&.hidden {
+			opacity: 0;
+			transform: translateY(-120px);
+			pointer-events: none;
 		}
 
 		.navList {
@@ -106,51 +116,83 @@
 			opacity: 1;
 			transform: translateX(-50%) translateY(0);
 		}
-    }
+	}
 
-    .background{
-        width: 100%;
-        height: 100%;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: -1;
-        background:
-            radial-gradient(ellipse at 18% 14%, #0b0a09, transparent 25%),
-            radial-gradient(ellipse at 82% 86%, #0b0a09, transparent 22%),
-            #0b0a09;
-    }
+	.background {
+		width: 100%;
+		height: 100%;
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: -1;
+		background:
+			radial-gradient(ellipse at 18% 14%, #0b0a09, transparent 25%),
+			radial-gradient(ellipse at 82% 86%, #0b0a09, transparent 22%),
+			#0b0a09;
+	}
 
-    .presentation{
-        padding-top: 175px;
-        display: flex;
-        width: 100%;
-        min-height: 100vh;
+	.presentation {
+		padding-top: 175px;
+		display: flex;
+		width: 100%;
+		min-height: 100vh;
 
-        .card_container{
-            width: 45%;
-            height: calc(100vh - 72px);
-            position: sticky;
-            top: 72px;
-            justify-items: right;
-            padding-right: clamp(20px, 5vw, 72px);
-            box-sizing: border-box;
-        }
+		.card_container {
+			width: 45%;
+			height: calc(100vh - 72px);
+			position: sticky;
+			top: 72px;
+			justify-items: right;
+			padding-right: clamp(20px, 5vw, 72px);
+			box-sizing: border-box;
+			opacity: 0;
+			transform: translateY(-18px);
+			transition: opacity 650ms ease, transform 650ms ease;
 
-        .slider_container{
-            width: 55%;
-            height: auto;
-            min-height: calc(100vh - 72px);
-        }
-    }
+			&.loaded {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
 
+		.slider_container {
+			width: 55%;
+			height: auto;
+			min-height: calc(100vh - 72px);
+		}
+	}
+}
 
+@keyframes navShellIn {
+	from {
+		opacity: 0;
+		transform: translateX(-50%) translateY(-18px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateX(-50%) translateY(0);
+	}
+}
+
+@media (min-width: 1150px) {
+	.portfolio {
+		.presentation {
+			.card_container {
+				padding-right: clamp(48px, 7vw, 120px);
+			}
+		}
+	}
 }
 
 @media (max-width: 700px) {
 	.portfolio {
-		.nav {
+		.navShell {
 			top: 12px;
+		}
+
+		.nav {
+			top: 0;
 			padding: 8px 10px;
 
 			.navList {

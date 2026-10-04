@@ -54,7 +54,7 @@ export function InfoCard({ data }: { data: InfoCardData }) {
             </div>
 
             <div className={style.details}>
-                <h1 className={style.name}>{data.name ?? "Your Name"}</h1>
+                <h1 className={style.name}>{data.name ?? "NAME"}</h1>
                 <p className={style.description}>
                     {data.description ?? "A creative developer building thoughtful digital experiences."}
                 </p>
