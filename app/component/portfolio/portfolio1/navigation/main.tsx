@@ -31,7 +31,7 @@ export function PortfolioNav({ items, currentPage, isVisible = true, className }
                         <li key={id} className={style.navItem}>
                             <a
                                 href={href}
-                                className={`${style.navLink} ${isActive ? style.active : ""}`.trim()}
+                                className={`${style.navLink} cursor-light ${isActive ? style.active : ""}`.trim()}
                                 aria-label={label}
                                 title={label}
                             >

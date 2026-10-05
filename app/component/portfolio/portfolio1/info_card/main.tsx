@@ -40,7 +40,7 @@ function SocialMark({ name }: { name: keyof SocialLinks }) {
 
 export function InfoCard({ data }: { data: InfoCardData }) {
     return (
-        <article className={style.card}>
+        <article className={`${style.card} cursor-light`}>
             <div className={style.imageFrame}>
                 <Image
                     className={style.portrait}

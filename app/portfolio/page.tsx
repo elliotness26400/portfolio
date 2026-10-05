@@ -9,6 +9,7 @@ import { Home } from "../component/portfolio/portfolio1/presentation/home/main";
 import { Experience } from "../component/portfolio/portfolio1/presentation/experience/main";
 import { Contact } from "../component/portfolio/portfolio1/presentation/contact/main";
 import { PortfolioNav, type PortfolioNavItem } from "../component/portfolio/portfolio1/navigation/main";
+import { CursorFollower } from "../component/portfolio/portfolio1/cursor_follower/main";
 import style from "./page.module.scss";
 
 const navItems: PortfolioNavItem[] = [
@@ -45,6 +46,7 @@ const navItems: PortfolioNavItem[] = [
 export default function Portfolio() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [isNavVisible, setIsNavVisible] = useState(true);
+    const [language, setLanguage] = useState("en");
     const lastScrollY = useRef(0);
 
     useEffect(() => {
@@ -69,12 +71,31 @@ export default function Portfolio() {
 
     return (
         <div className={style.portfolio}>
+            <CursorFollower />
+
             <div className={`${style.navShell} ${isLoaded ? style.loaded : ""}`}>
                 <PortfolioNav
                     items={navItems}
                     currentPage="portfolio"
                     isVisible={isNavVisible}
                 />
+            </div>
+
+            <div className={`${style.languageShell} ${isLoaded ? style.loaded : ""}`}>
+                <label className={`${style.languageControl} cursor-light`}>
+                    <span className={style.visuallyHidden}>Choose language</span>
+                    <select
+                        aria-label="Choose language"
+                        value={language}
+                        onChange={(event) => setLanguage(event.target.value)}
+                    >
+                        <option value="en">English</option>
+                        <option value="fr">Français</option>
+                    </select>
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="m4 6 4 4 4-4" />
+                    </svg>
+                </label>
             </div>
 
             <div className={style.background}></div>
@@ -89,7 +110,7 @@ export default function Portfolio() {
                         <Home data={{}} />
                         <Projects data={{}} />
                         <Experience data={{}} />
-                        <Tools data={{}} />
+                        <Tools />
                         <Contact data={{}} />
                     </SliderPart>
                 </div>

@@ -24,10 +24,10 @@ const projects: ProjectItem[] = [
         href: "#"
     },
     {
-        title: "Luma Commerce",
-        description: "An ecommerce interface concept crafted to turn browsing into a more guided, confident experience.",
+        title: "3D Engine 2023",
+        description: "A 3D engine built in PURE native web HTML JS PHP with no lib, and only divs perspective using CSS 3D transforms. Also my first big project",
         image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80",
-        href: "#"
+        href: "http://localhost:3000/3d/engine2023"
     }
 ];
 
@@ -38,21 +38,21 @@ export function Projects({ data }: { data: {} }) {
         <section className={style.projects}>
             <div className={style.header}>
                 <h2>
-                    <span>RECENT</span>
-                    <span>PROJECTS</span>
+                    <span className="cursor-light">RECENT</span>
+                    <span className="cursor-light">PROJECTS</span>
                 </h2>
             </div>
 
             <div className={style.list}>
                 {projects.map((project) => (
-                    <a key={project.title} href={project.href} className={style.card}>
+                    <a key={project.title} href={project.href} className={`${style.card} cursor-reactive`}>
                         <div className={style.imageWrap}>
                             <img src={project.image} alt={project.title} />
                         </div>
 
                         <div className={style.content}>
-                            <h3>{project.title}</h3>
-                            <p>{project.description}</p>
+                            <h3 className="cursor-light">{project.title}</h3>
+                            <p className="cursor-light">{project.description}</p>
                         </div>
 
                         <div className={style.arrow} aria-hidden="true">

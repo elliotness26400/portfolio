@@ -9,7 +9,7 @@ export function Contact({data}:{data:{}}){
 
     return (
         <div>
-            <h1>Contact Me</h1>
+            <h1 className="cursor-light">Contact Me</h1>
         </div>
     );
 

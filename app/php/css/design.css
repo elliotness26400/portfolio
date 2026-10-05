@@ -1,0 +1,65 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+}
+
+#ecran {
+    perspective: 1920px;
+    perspective-origin: 50% 33%;
+    background: linear-gradient(skyblue, white);
+    height: 100vh;
+    border: solid 4px green;
+}
+
+#heros,
+#chapeau,
+#panneau,
+#plateau {
+    box-sizing: content-box;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#heros {
+    transform-style: preserve-3d;
+}
+
+#chapeau {
+    background-color: cyan;
+    box-shadow: 0 -5px black;
+    border-radius: 50%;
+}
+
+#panneau {
+    background-color: pink;
+    box-shadow: 0 -5px black;
+    background-repeat: no-repeat;
+}
+
+#plateau {
+    background-color: lime;
+    box-shadow: 0 -5px black;
+    border-radius: 50%;
+}
+
+.fondation-cube > div {
+    opacity: 0.6;
+}
+
+body.longue-vue::before {
+    content: "";
+    position: fixed;
+    width: 100vmin;
+    height: 100vmin;
+    box-shadow: 0 0 0 100rem black, 0 0 0 100rem #8884 inset;
+    z-index: 999;
+    border-radius: 50%;
+    top: 0;
+    left: calc(50vw - 50vmin);
+}
