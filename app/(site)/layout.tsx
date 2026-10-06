@@ -4,7 +4,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { CursorFollower } from "../component/portfolio/portfolio1/cursor_follower/main";
 import { PortfolioNav, type PortfolioNavItem } from "../component/portfolio/portfolio1/navigation/main";
-import { PageTransitionProvider, usePageTransition } from "./transition-context";
+import { NavParamSync, PageTransitionProvider, usePageTransition } from "./transition-context";
 import style from "./layout.module.scss";
 
 const navItems: PortfolioNavItem[] = [
@@ -40,7 +40,7 @@ const navItems: PortfolioNavItem[] = [
 
 function ShellChrome({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const { isLeaving, isEntering, arrivedFromNav, phase, navigate } = usePageTransition();
+    const { isLeaving, isEntering, hasLoadedFromNav, phase, navigate } = usePageTransition();
 
     const [isLoaded, setIsLoaded] = useState(false);
     const [isNavVisible, setIsNavVisible] = useState(true);
@@ -71,7 +71,7 @@ function ShellChrome({ children }: { children: React.ReactNode }) {
     }, [pathname]);
 
     const currentPage = pathname.startsWith("/about") ? "about" : "portfolio";
-    const instant = arrivedFromNav;
+    const chromeReady = isLoaded || hasLoadedFromNav;
 
     const handleNavigate = (href: string) => {
         /* Un lien qui ne change pas de route (ex: /portfolio#projects depuis
@@ -86,7 +86,7 @@ function ShellChrome({ children }: { children: React.ReactNode }) {
         <div className={style.shell}>
             <CursorFollower />
 
-            <div className={`${style.navShell} ${isLoaded ? style.loaded : ""} ${instant ? style.instant : ""}`}>
+            <div className={`${style.navShell} ${chromeReady ? style.loaded : ""} ${hasLoadedFromNav ? style.instant : ""}`}>
                 <PortfolioNav
                     items={navItems}
                     currentPage={currentPage}
@@ -95,7 +95,7 @@ function ShellChrome({ children }: { children: React.ReactNode }) {
                 />
             </div>
 
-            <div className={`${style.languageShell} ${isLoaded ? style.loaded : ""} ${instant ? style.instant : ""}`}>
+            <div className={`${style.languageShell} ${chromeReady ? style.loaded : ""} ${hasLoadedFromNav ? style.instant : ""}`}>
                 <label className={`${style.languageControl} cursor-light`}>
                     <span className={style.visuallyHidden}>Choose language</span>
                     <select
@@ -114,6 +114,10 @@ function ShellChrome({ children }: { children: React.ReactNode }) {
 
             <div className={style.background}></div>
 
+            <Suspense fallback={null}>
+                <NavParamSync />
+            </Suspense>
+
             <div
                 className={`${style.page}${isLeaving ? ` ${style.pageLeaving}` : ""}${isEntering ? ` ${style.pageEntering}` : ""}`}
                 data-transition={phase}
@@ -126,10 +130,8 @@ function ShellChrome({ children }: { children: React.ReactNode }) {
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
     return (
-        <Suspense fallback={null}>
-            <PageTransitionProvider>
-                <ShellChrome>{children}</ShellChrome>
-            </PageTransitionProvider>
-        </Suspense>
+        <PageTransitionProvider>
+            <ShellChrome>{children}</ShellChrome>
+        </PageTransitionProvider>
     );
 }
