@@ -1,6 +1,3 @@
-'use client'
-
-import React from "react";
 import style from "./page.module.scss";
 
 type ProjectItem = {
@@ -31,12 +28,10 @@ const projects: ProjectItem[] = [
     }
 ];
 
-export function Projects({ data }: { data: {} }) {
-    const {} = data;
-
+export function Projects() {
     return (
-        <section className={style.projects}>
-            <div className={style.header}>
+        <section className={style.projects} data-scroll-reveal>
+            <div className={style.header} data-scroll-reveal>
                 <h2>
                     <span className="cursor-light">RECENT</span>
                     <span className="cursor-light">PROJECTS</span>
@@ -45,7 +40,7 @@ export function Projects({ data }: { data: {} }) {
 
             <div className={style.list}>
                 {projects.map((project) => (
-                    <a key={project.title} href={project.href} className={`${style.card} cursor-reactive`}>
+                    <a key={project.title} href={project.href} className={`${style.card} cursor-reactive`} data-scroll-reveal>
                         <div className={style.imageWrap}>
                             <img src={project.image} alt={project.title} />
                         </div>

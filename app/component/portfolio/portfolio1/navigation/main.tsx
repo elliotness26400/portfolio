@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import style from "./page.module.scss";
 
 export type PortfolioNavItem = {
@@ -13,9 +13,14 @@ type PortfolioNavProps = {
     currentPage?: string;
     isVisible?: boolean;
     className?: string;
+    /**
+     * Intercept a cross-page link so the shell can fade the page out
+     * before navigating. Return true if the click was handled.
+     */
+    onNavigate?: (href: string, event: MouseEvent<HTMLAnchorElement>) => boolean;
 };
 
-export function PortfolioNav({ items, currentPage, isVisible = true, className }: PortfolioNavProps) {
+export function PortfolioNav({ items, currentPage, isVisible = true, className, onNavigate }: PortfolioNavProps) {
     const activePage = currentPage?.trim().toLowerCase();
 
     return (
@@ -27,6 +32,13 @@ export function PortfolioNav({ items, currentPage, isVisible = true, className }
                 {items.map(({ id, label, href, icon }) => {
                     const isActive = activePage === id.trim().toLowerCase();
 
+                    const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+                        if (!onNavigate) return;
+                        /* Les ancres internes (#…) gardent un scroll natif. */
+                        if (href.startsWith("#")) return;
+                        if (onNavigate(href, event)) event.preventDefault();
+                    };
+
                     return (
                         <li key={id} className={style.navItem}>
                             <a
@@ -34,6 +46,7 @@ export function PortfolioNav({ items, currentPage, isVisible = true, className }
                                 className={`${style.navLink} cursor-light ${isActive ? style.active : ""}`.trim()}
                                 aria-label={label}
                                 title={label}
+                                onClick={handleClick}
                             >
                                 <span className={`${style.icon} ${isActive ? style.activeIcon : ""}`.trim()}>{icon}</span>
                                 <span className={style.label}>{label}</span>

@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+.contact {
+	--bg: #0b0a09;
+	--white: #ffffff;
+	--muted: #9fa8af;
+	--soft: #c5ccd0;
+	--card-hover: rgba(255, 255, 255, 0.06);
+	--color-main: rgb(212 255 88);
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4rem;
+	padding: 5rem 0 8rem;
+	font-family: 'Poppins', sans-serif;
+	color: var(--white);
+}
+
+.header {
+	margin: 0;
+	text-align: center;
+
+	.open_to_work {
+		font-family: 'Poppins', sans-serif;
+		font-weight: 400;
+		color: #0b0a09;
+		background-color: var(--color-main);
+		box-shadow: 0 22px 58px rgba(111, 172, 155, 0.16);
+
+		max-width: 11rem;
+		margin: 0 auto;
+		border-radius: .3rem;
+
+		align-items: center;
+
+		> span {
+			margin: 0 auto;
+			padding: .1rem .8rem;
+			display: flex;
+
+			.child {
+				margin: auto 0 !important;
+			}
+		}
+	}
+
+	h2 {
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.1em;
+		font-weight: 800;
+		line-height: 0.9;
+		font-size: clamp(42px, 6vw, 96px);
+		letter-spacing: -0.06em;
+
+		span {
+			display: block;
+		}
+
+		span:first-child {
+			color: var(--white);
+		}
+
+		span:last-child {
+			color: var(--color-main);
+		}
+	}
+}
+
+.links {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	width: 100%;
+	max-width: 640px;
+}
+
+.link {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 1.1rem 1.4rem;
+	border: 1px solid rgba(255, 255, 255, 0.095);
+	border-radius: 16px;
+	background: linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018));
+	color: var(--white);
+	text-decoration: none;
+	font-size: clamp(15px, 1.6vw, 18px);
+	font-weight: 500;
+	transition: border-color 220ms ease, background-color 220ms ease, transform 220ms ease;
+
+	svg {
+		width: 18px;
+		height: 18px;
+		fill: none;
+		stroke: var(--color-main);
+		stroke-width: 1.8;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		transition: transform 220ms ease;
+	}
+
+	&:hover,
+	&:focus-visible {
+		border-color: rgba(212, 255, 88, 0.5);
+		background-color: rgba(212, 255, 88, 0.035);
+		transform: translateY(-2px);
+
+		svg {
+			transform: translateX(4px);
+		}
+	}
+}
+
+@media (max-width: 700px) {
+	.contact {
+		gap: 3rem;
+		padding: 3rem 0 5rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.link,
+	.link svg {
+		transition: none;
+	}
+}

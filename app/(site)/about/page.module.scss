@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap');
+
+:root {
+	--color-white: #ffffff;
+	--color-gray-1: #9fa8af;
+	--color-subtitle: #bfc7cc;
+	--color-badge-text: #f4f7f9;
+	--color-main: rgb(212 255 88);
+}
+
+.about {
+	.content {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		min-height: 100vh;
+		box-sizing: border-box;
+		padding: 155px clamp(20px, 8vw, 120px) 0;
+
+		h1 {
+			font-family: 'Poppins', sans-serif;
+			font-weight: 800;
+			line-height: 0.9;
+			margin: 0;
+			font-size: clamp(44px, 9vw, 95px);
+
+			.titleLine {
+				display: block;
+				width: max-content;
+				max-width: 100%;
+				white-space: nowrap;
+			}
+
+			.titleLine:first-child {
+				color: var(--color-white);
+			}
+
+			.titleLine:last-child {
+				color: var(--color-gray-1);
+			}
+
+			.titleLetter {
+				display: inline-block;
+				opacity: 0;
+				transform: translateY(22px);
+				animation: titleLetterReveal 900ms cubic-bezier(0.2, 0.75, 0.25, 1) calc(var(--letter-index, 0) * 80ms) forwards;
+			}
+		}
+
+		.lead {
+			max-width: 62ch;
+			margin: 2.4rem 0 0;
+			color: var(--color-subtitle);
+			font-family: 'Poppins', sans-serif;
+			font-size: clamp(15px, 1.9vw, 20px);
+			font-weight: 300;
+			line-height: 1.7;
+			opacity: 0;
+			transform: translateY(18px);
+			animation: leadReveal 1050ms cubic-bezier(0.2, 0.75, 0.25, 1) 900ms forwards;
+		}
+
+		.slider_container {
+			width: 100%;
+			margin-top: 6rem;
+			padding-bottom: 8rem;
+		}
+	}
+}
+
+@keyframes titleLetterReveal {
+	from {
+		opacity: 0;
+		transform: translateY(22px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes leadReveal {
+	from {
+		opacity: 0;
+		transform: translateY(18px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.about {
+		.content h1 .titleLetter,
+		.content .lead {
+			animation: none;
+			opacity: 1;
+			transform: none;
+		}
+	}
+}
+
+@media (max-width: 700px) {
+	.about {
+		.content {
+			padding: 62px clamp(16px, 6vw, 32px) 0;
+
+			h1 {
+				font-size: clamp(36px, 12vw, 72px);
+			}
+
+			.lead {
+				margin-top: 1.6rem;
+			}
+
+			.slider_container {
+				margin-top: 3.5rem;
+				padding-bottom: 4rem;
+			}
+		}
+	}
+}

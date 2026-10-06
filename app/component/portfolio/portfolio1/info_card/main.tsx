@@ -16,10 +16,9 @@ type InfoCardData = {
 };
 
 const socialProfiles: { key: keyof SocialLinks; label: string; url: string }[] = [
-    { key: "github", label: "GitHub", url: "https://github.com/" },
-    { key: "linkedin", label: "LinkedIn", url: "https://www.linkedin.com/" },
-    { key: "instagram", label: "Instagram", url: "https://www.instagram.com/" },
-    { key: "x", label: "X", url: "https://x.com/" },
+    { key: "github", label: "GitHub", url: "https://github.com/Yokachii" },
+    { key: "linkedin", label: "LinkedIn", url: "https://www.linkedin.com/in/elliot-deconinck" },
+    // { key: "instagram", label: "Instagram", url: "https://www.instagram.com/" },
 ];
 
 function SocialMark({ name }: { name: keyof SocialLinks }) {

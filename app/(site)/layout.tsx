@@ -1,26 +1,21 @@
-'use client'
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { InfoCard } from "../component/portfolio/portfolio1/info_card/main";
-import { SliderPart } from "../component/portfolio/portfolio1/presentation/main";
-import { Tools } from "../component/portfolio/portfolio1/presentation/tools/main";
-import { Projects } from "../component/portfolio/portfolio1/presentation/projects/main";
-import { Home } from "../component/portfolio/portfolio1/presentation/home/main";
-import { Experience } from "../component/portfolio/portfolio1/presentation/experience/main";
-import { Contact } from "../component/portfolio/portfolio1/presentation/contact/main";
-import { PortfolioNav, type PortfolioNavItem } from "../component/portfolio/portfolio1/navigation/main";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { CursorFollower } from "../component/portfolio/portfolio1/cursor_follower/main";
-import style from "./page.module.scss";
+import { PortfolioNav, type PortfolioNavItem } from "../component/portfolio/portfolio1/navigation/main";
+import { PageTransitionProvider, usePageTransition } from "./transition-context";
+import style from "./layout.module.scss";
 
 const navItems: PortfolioNavItem[] = [
-    { id: "home", label: "Home", href: "#home", icon: (
+    { id: "home", label: "Home", href: "/portfolio#home", icon: (
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M3 10.5 12 3l9 7.5" />
             <path d="M5 9.5V20h14V9.5" />
             <path d="M10 20v-6h4v6" />
         </svg>
     ) },
-    { id: "projects", label: "All Projects", href: "#projects", icon: (
+    { id: "projects", label: "All Projects", href: "/portfolio#projects", icon: (
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <rect x="3.5" y="4.5" width="7" height="7" rx="1.5" />
             <rect x="13.5" y="4.5" width="7" height="4.5" rx="1.5" />
@@ -28,14 +23,14 @@ const navItems: PortfolioNavItem[] = [
             <rect x="3.5" y="13.5" width="7" height="6" rx="1.5" />
         </svg>
     ) },
-    { id: "portfolio", label: "Portfolio", href: "#portfolio", icon: (
+    { id: "portfolio", label: "Portfolio", href: "/portfolio", icon: (
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h11A2.5 2.5 0 0 1 20 8.5v7A2.5 2.5 0 0 1 17.5 18h-11A2.5 2.5 0 0 1 4 15.5v-7Z" />
             <path d="M8 6V4.5A1.5 1.5 0 0 1 9.5 3h5A1.5 1.5 0 0 1 16 4.5V6" />
             <path d="M8 12h8" />
         </svg>
     ) },
-    { id: "about", label: "About me", href: "#about", icon: (
+    { id: "about", label: "About me", href: "/about", icon: (
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="8" r="3.5" />
             <path d="M5 19.5c.9-2.9 3.2-4.5 7-4.5s6.1 1.6 7 4.5" />
@@ -43,7 +38,10 @@ const navItems: PortfolioNavItem[] = [
     ) },
 ];
 
-export default function Portfolio() {
+function ShellChrome({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
+    const { isLeaving, isEntering, arrivedFromNav, phase, navigate } = usePageTransition();
+
     const [isLoaded, setIsLoaded] = useState(false);
     const [isNavVisible, setIsNavVisible] = useState(true);
     const [language, setLanguage] = useState("en");
@@ -51,37 +49,53 @@ export default function Portfolio() {
 
     useEffect(() => {
         const frame = window.requestAnimationFrame(() => setIsLoaded(true));
+        return () => window.cancelAnimationFrame(frame);
+    }, []);
 
+    useEffect(() => {
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
             const shouldHide = currentScrollY > 24 && currentScrollY > lastScrollY.current;
-
             setIsNavVisible(!shouldHide);
             lastScrollY.current = currentScrollY;
         };
 
         window.addEventListener("scroll", handleScroll, { passive: true });
         handleScroll();
-
-        return () => {
-            window.cancelAnimationFrame(frame);
-            window.removeEventListener("scroll", handleScroll);
-        };
+        return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    /* Revenir en haut à chaque changement de page évite de garder le scroll. */
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [pathname]);
+
+    const currentPage = pathname.startsWith("/about") ? "about" : "portfolio";
+    const instant = arrivedFromNav;
+
+    const handleNavigate = (href: string) => {
+        /* Un lien qui ne change pas de route (ex: /portfolio#projects depuis
+           /portfolio) garde le comportement natif du navigateur. */
+        const target = href.split("#")[0] || pathname;
+        if (target === pathname) return false;
+        navigate(target);
+        return true;
+    };
+
     return (
-        <div className={style.portfolio}>
+        <div className={style.shell}>
             <CursorFollower />
 
-            <div className={`${style.navShell} ${isLoaded ? style.loaded : ""}`}>
+            <div className={`${style.navShell} ${isLoaded ? style.loaded : ""} ${instant ? style.instant : ""}`}>
                 <PortfolioNav
                     items={navItems}
-                    currentPage="portfolio"
+                    currentPage={currentPage}
                     isVisible={isNavVisible}
+                    onNavigate={handleNavigate}
                 />
             </div>
 
-            <div className={`${style.languageShell} ${isLoaded ? style.loaded : ""}`}>
+            <div className={`${style.languageShell} ${isLoaded ? style.loaded : ""} ${instant ? style.instant : ""}`}>
                 <label className={`${style.languageControl} cursor-light`}>
                     <span className={style.visuallyHidden}>Choose language</span>
                     <select
@@ -100,21 +114,22 @@ export default function Portfolio() {
 
             <div className={style.background}></div>
 
-            <div className={style.presentation}>
-                <div className={`${style.card_container} ${isLoaded ? style.loaded : ""}`}>
-                    <InfoCard data={{ name: "Deconinck Elliot" }} />
-                </div>
-
-                <div className={style.slider_container}>
-                    <SliderPart data={{}}>
-                        <Home data={{}} />
-                        <Projects data={{}} />
-                        <Experience data={{}} />
-                        <Tools />
-                        <Contact data={{}} />
-                    </SliderPart>
-                </div>
+            <div
+                className={`${style.page}${isLeaving ? ` ${style.pageLeaving}` : ""}${isEntering ? ` ${style.pageEntering}` : ""}`}
+                data-transition={phase}
+            >
+                {children}
             </div>
         </div>
+    );
+}
+
+export default function SiteLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <Suspense fallback={null}>
+            <PageTransitionProvider>
+                <ShellChrome>{children}</ShellChrome>
+            </PageTransitionProvider>
+        </Suspense>
     );
 }

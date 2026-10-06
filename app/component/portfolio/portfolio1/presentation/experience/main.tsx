@@ -39,8 +39,8 @@ export function Experience({ data }: { data: ExperienceData }) {
     const entries = data.entries ?? sampleEntries;
 
     return (
-        <section className={style.experience}>
-            <div className={style.header}>
+        <section className={style.experience} data-scroll-reveal>
+            <div className={style.header} data-scroll-reveal>
                 <h2>
                     <span className="cursor-light">{years} YEARS OF</span>
                     <span className="cursor-light">EXPERIENCE</span>
@@ -49,7 +49,7 @@ export function Experience({ data }: { data: ExperienceData }) {
 
             <div className={style.list}>
                 {entries.slice(0, 4).map((entry) => (
-                    <article className={`${style.card} cursor-reactive`} key={`${entry.title}-${entry.period}`}>
+                    <article className={`${style.card} cursor-reactive`} key={`${entry.title}-${entry.period}`} data-scroll-reveal>
                         <div className={style.content}>
                             <h3 className="cursor-light">{entry.title}</h3>
                             <p className="cursor-light">{entry.description}</p>

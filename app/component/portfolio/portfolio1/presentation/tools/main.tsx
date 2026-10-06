@@ -28,8 +28,8 @@ const tools: Tool[] = [
 
 export function Tools() {
     return (
-        <section className={style.tools}>
-            <header className={style.header}>
+        <section className={style.tools} data-scroll-reveal>
+            <header className={style.header} data-scroll-reveal>
                 <h2>
                     <span className="cursor-light">PREMIUM</span>
                     <span className="cursor-light">TOOLS</span>
@@ -38,7 +38,7 @@ export function Tools() {
 
             <div className={style.grid}>
                 {tools.map((tool) => (
-                    <article className={`${style.card} cursor-reactive`} key={tool.name}>
+                    <article className={`${style.card} cursor-reactive`} key={tool.name} data-scroll-reveal>
                         <div className={`${style.mark} ${style[tool.tone]}`} aria-hidden="true">
                             <span>{tool.mark}</span>
                         </div>
