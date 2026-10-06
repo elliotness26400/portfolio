@@ -12,14 +12,14 @@ type ProjectItem = {
 
 const projects: ProjectItem[] = [
     {
-        title: "Aster Studio",
-        description: "A polished brand experience for a creative studio, focused on storytelling and product clarity.",
+        title: "Framework Picture",
+        description: "Front end page to present the work of a photographer, built with Next.js, featuring a responsive design and smooth animations.",
         image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
         href: "#"
     },
     {
-        title: "Northstar App",
-        description: "A SaaS dashboard redesign that simplified complex workflows and improved conversion paths.",
+            title: "Socket.IO Chess App",
+            description: "A real-time multiplayer chess application built with Socket.IO & Next.js, allowing players to compete against each other online.",
         image: "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?auto=format&fit=crop&w=900&q=80",
         href: "#"
     },

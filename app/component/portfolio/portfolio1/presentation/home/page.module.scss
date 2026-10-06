@@ -20,7 +20,7 @@
 	justify-content: flex-start;
     
 	.presentation {
-		max-width: 62%;
+		max-width: 100%;
 
 		h1 {
 			font-family: 'Poppins', sans-serif;
@@ -31,6 +31,9 @@
 
 			.titleLine {
 				display: block;
+				width: max-content;
+				max-width: 100%;
+				white-space: nowrap;
 			}
 
 			.titleLine:first-child {

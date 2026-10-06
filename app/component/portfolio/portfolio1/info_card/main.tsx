@@ -44,7 +44,7 @@ export function InfoCard({ data }: { data: InfoCardData }) {
             <div className={style.imageFrame}>
                 <Image
                     className={style.portrait}
-                    src={data.image ?? "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1000&q=85"}
+                    src={data.image ?? "/tete.jpg"}
                     alt={`${data.name ?? "Profile"} portrait`}
                     fill
                     priority
