@@ -1,39 +1,213 @@
-.blogimg{
-    max-width: 40vw;
-    max-height: 50vh;
-    height: auto;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap');
+
+:root {
+	--color-white: #ffffff;
+	--color-gray-1: #9fa8af;
+	--color-subtitle: #bfc7cc;
+	--color-badge-text: #f4f7f9;
+	--color-main: rgb(212 255 88);
+	--color-bg: #15191e;
+	--color-border: rgba(255, 255, 255, 0.12);
+	--color-surface: rgba(255, 255, 255, 0.04);
 }
 
-.bloglist{
-    list-style-type: square;
-    margin-left: 20px;
+/* ---------- En-tête de projet ---------- */
+
+.blogHeader {
+	width: 100%;
 }
 
-.blogtitle{
-    font-size: 24px;
-    font-weight: bold;
-    margin-top: 20px;
+.blogMeta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 1.6rem;
+	opacity: 0;
+	transform: translateY(12px);
+	animation: revealUp 900ms cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
+
+	time {
+		color: var(--color-main);
+		font-family: 'Poppins', sans-serif;
+		font-size: 0.8rem;
+		font-weight: 600;
+	}
 }
 
-.blogdescription{
-    font-size: 18px;
-    font-weight: normal;
-    margin-top: 10px;
+.blogTags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+
+	span {
+		padding: 0.3rem 0.7rem;
+		border: 1px solid var(--color-border);
+		border-radius: 999px;
+		color: var(--color-badge-text);
+		font-family: 'Poppins', sans-serif;
+		font-size: 0.75rem;
+		font-weight: 400;
+	}
 }
 
-.blogtext{
-    font-size: 13px !important;
-    line-height: 1.5;
-    margin-top: 10px;
+.bigblogtitle {
+	font-family: 'Poppins', sans-serif;
+	font-weight: 800;
+	line-height: 1.05;
+	letter-spacing: -0.01em;
+	margin: 0;
+	color: var(--color-white);
+	font-size: clamp(36px, 7vw, 76px);
+	opacity: 0;
+	transform: translateY(22px);
+	animation: revealUp 1050ms cubic-bezier(0.2, 0.75, 0.25, 1) 900ms forwards;
 }
 
-.bigblogtitle{
-    font-size: 36px;
-    font-weight: bold;
-    margin-bottom: 10px;
+.blogdescription {
+	max-width: 62ch;
+	margin: 1.4rem 0 0;
+	color: var(--color-subtitle);
+	font-family: 'Poppins', sans-serif;
+	font-size: clamp(15px, 1.9vw, 20px);
+	font-weight: 300;
+	line-height: 1.7;
+	opacity: 0;
+	transform: translateY(18px);
+	animation: revealUp 1050ms cubic-bezier(0.2, 0.75, 0.25, 1) 1100ms forwards;
 }
 
-.linklist{
-    color:blue !important;
-    text-decoration:underline;
+/* ---------- Corps du contenu ---------- */
+
+.blogMain {
+	width: 100%;
+	max-width: 860px;
+}
+
+.blogBlock {
+	margin-top: 3rem;
+}
+
+.blogtitle {
+	margin: 0 0 1rem;
+	color: var(--color-white);
+	font-family: 'Poppins', sans-serif;
+	font-size: clamp(20px, 2vw, 26px);
+	font-weight: 700;
+	line-height: 1.25;
+}
+
+.blogtext {
+	max-width: 72ch;
+	margin: 1.4rem 0 0;
+	color: var(--color-subtitle);
+	font-family: 'Poppins', sans-serif;
+	font-size: clamp(15px, 1.05vw, 17px);
+	font-weight: 300;
+	line-height: 1.85;
+}
+
+/* ---------- Listes ---------- */
+
+.bloglist {
+	display: grid;
+	gap: 0.6rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		position: relative;
+		padding-left: 1.4rem;
+		color: var(--color-subtitle);
+		font-family: 'Poppins', sans-serif;
+		font-size: 0.98rem;
+		font-weight: 300;
+		line-height: 1.6;
+
+		&::before {
+			position: absolute;
+			top: 0.62em;
+			left: 0;
+			width: 6px;
+			height: 6px;
+			border-radius: 999px;
+			background: var(--color-main);
+			content: "";
+		}
+	}
+}
+
+.linklist {
+	li::before {
+		display: none;
+	}
+
+	a {
+		color: var(--color-main);
+		text-decoration: none;
+		border-bottom: 1px solid rgba(212, 255, 88, 0.35);
+		transition: border-color 200ms ease, color 200ms ease;
+
+		&:hover {
+			color: var(--color-white);
+			border-color: var(--color-white);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--color-main);
+			outline-offset: 3px;
+			border-radius: 4px;
+		}
+	}
+}
+
+/* ---------- Images ---------- */
+
+.blogFigure {
+	margin: 2.4rem 0 0;
+	padding: 0;
+}
+
+.blogimg {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	max-height: 72vh;
+	border: 1px solid var(--color-border);
+	border-radius: 16px;
+	background: var(--color-surface);
+	object-fit: cover;
+}
+
+/* ---------- Animation ---------- */
+
+@keyframes revealUp {
+	from {
+		opacity: 0;
+		transform: translateY(22px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.blogMeta,
+	.bigblogtitle,
+	.blogdescription {
+		animation: none;
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 700px) {
+	.blogBlock {
+		margin-top: 2.2rem;
+	}
 }

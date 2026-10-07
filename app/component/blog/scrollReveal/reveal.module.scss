@@ -1,0 +1,39 @@
+.revealRoot {
+	:global([data-scroll-reveal]) {
+		opacity: 0;
+		transform: translateY(38px) scale(0.985);
+		filter: blur(6px);
+		transition:
+			opacity 900ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
+			transform 1000ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
+			filter 900ms ease var(--reveal-delay, 0ms);
+		will-change: opacity, transform, filter;
+	}
+
+	:global([data-scroll-reveal][data-revealed="true"]) {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+		filter: blur(0);
+	}
+
+	/* Les titres de section arrivent avec une petite mise à l'échelle */
+	:global(section > header[data-scroll-reveal]) {
+		transform: translateY(48px);
+	}
+
+	:global(section > header[data-scroll-reveal][data-revealed="true"]) {
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.revealRoot {
+		:global([data-scroll-reveal]),
+		:global(section > header[data-scroll-reveal]) {
+			opacity: 1;
+			transform: none;
+			filter: none;
+			transition: none;
+		}
+	}
+}

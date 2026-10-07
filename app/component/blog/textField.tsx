@@ -1,7 +1,7 @@
 'use client'
 
-import React, { forwardRef } from "react";
-import { ContentItem, HeaderType, MainType } from "@/app/types/blog";
+import React from "react";
+import { ContentItem, MainType } from "@/app/types/blog";
 import style from "./main.module.scss";
 
 export function BlogMain({data}:{data:MainType}){
@@ -12,17 +12,19 @@ export function BlogMain({data}:{data:MainType}){
         switch (item.type) {
             case "str":
                 return (
-                    <p className={style.blogtext}>{item.text}</p>
+                    <p className={`cursor-light ${style.blogtext}`}>{item.text}</p>
                 )
             case "img":
                 return (
-                    <img src={item.url} alt={item.alt} className={style.blogimg}/>
+                    <figure className={style.blogFigure}>
+                        <img src={item.url} alt={item.alt} className={style.blogimg}/>
+                    </figure>
                 )
             case "list":
                 return (
-                    <div>
-                        <h3 className={style.blogtitle}>{item.title}</h3>
-                        <ul className={style.bloglist}>
+                    <div className={style.blogBlock}>
+                        <h3 className={`cursor-light ${style.blogtitle}`}>{item.title}</h3>
+                        <ul className={`cursor-light ${style.bloglist}`}>
                             {item.content.map((item2,j)=>(
                                 <li key={j}>{item2}</li>
                             ))}
@@ -31,20 +33,22 @@ export function BlogMain({data}:{data:MainType}){
                 )
             case "linkList":
                 return (
-                    <div>
-                        <h3 className={style.blogtitle}>{item.title}</h3>
+                    <div className={style.blogBlock}>
+                        <h3 className={`cursor-light ${style.blogtitle}`}>{item.title}</h3>
                         <ul className={`${style.bloglist} ${style.linklist}`}>
                             {item.content.map((item2,j)=>(
-                                <li key={j}><a href={item2.url} target="_blank">{item2.title}</a></li>
+                                <li key={j}>
+                                    <a href={item2.url} target="_blank" rel="noreferrer" className="cursor-light">{item2.title}</a>
+                                </li>
                             ))}
                         </ul>
                     </div>
                 )
             default:
                 return (
-                    <div>
-                        <h3 className={style.blogtitle}>{item.title}</h3>
-                        <h4 className={style.blogdescription}>{item.description}</h4>
+                    <div className={style.blogBlock}>
+                        <h3 className={`cursor-light ${style.blogtitle}`}>{item.title}</h3>
+                        <h4 className={`cursor-light ${style.blogdescription}`}>{item.description}</h4>
                         <div>
                             {item.content.map((item2,j)=>(
                                 <div key={j}>
@@ -58,9 +62,9 @@ export function BlogMain({data}:{data:MainType}){
     }
 
     return (
-        <div>
+        <div className={style.blogMain}>
             {content.map((item,i)=>(
-                <div key={i}>
+                <div key={i} data-scroll-reveal>
                     {returnHtml(item)}
                 </div>
             ))}
