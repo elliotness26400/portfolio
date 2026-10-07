@@ -127,7 +127,7 @@ export default function BlogIndexPage() {
                     <div className={style.projectGrid}>
                         {filteredProjects.map((project) => (
                             <article className={style.projectCard} key={project.id}>
-                                <a href={`/blog/${project.id}`} className={style.imageLink} tabIndex={-1} aria-hidden="true">
+                                <a href={`/projects/${project.id}`} className={style.imageLink} tabIndex={-1} aria-hidden="true">
                                     <img src={project.coverImage} alt="" />
                                 </a>
                                 <div className={style.cardBody}>

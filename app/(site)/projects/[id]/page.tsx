@@ -16,7 +16,7 @@ export default async function BlogPage({
     const data = blogsDatas[id];
 
     if(!data) return (
-        <div>WRONG ID</div>
+        <div>Page not found</div>
     )
 
     return (
