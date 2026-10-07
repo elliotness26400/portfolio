@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { usePathname } from "next/navigation";
 import { CursorFollower } from "../component/portfolio/portfolio1/cursor_follower/main";
 import { PortfolioNav, type PortfolioNavItem } from "../component/portfolio/portfolio1/navigation/main";
@@ -38,6 +39,34 @@ const navItems: PortfolioNavItem[] = [
     ) },
 ];
 
+const NAV_LOAD_DELAY: Record<string, string> = {
+    home: "5500ms",
+    portfolio: "5500ms",
+    projects: "2200ms",
+    about: "2000ms",
+    default: "2200ms",
+};
+
+/**
+ * Id de l'icône correspondant à la route courante, ou `null` si aucune
+ * icône ne correspond (toutes restent alors sombres).
+ *
+ * `home` (`/portfolio#home`) et `portfolio` (`/portfolio`) pointent vers la
+ * même route : on privilégie le libellé le plus spécifique (celui dont le
+ * href ne porte pas d'ancre) pour éviter que `home` ne l'emporte au hasard.
+ */
+function resolveActiveNavId(pathname: string): string | null {
+    const normalized = pathname.replace(/\/+$/, "") || "/";
+
+    const candidates = navItems.filter(({ href }) => {
+        const path = href.split("#")[0].replace(/\/+$/, "") || "/";
+        return path === normalized;
+    });
+
+    const exact = candidates.find(({ href }) => !href.includes("#"));
+    return (exact ?? candidates[0])?.id ?? null;
+}
+
 function ShellChrome({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const { isLeaving, isEntering, hasLoadedFromNav, phase, navigate } = usePageTransition();
@@ -69,8 +98,10 @@ function ShellChrome({ children }: { children: React.ReactNode }) {
         window.scrollTo(0, 0);
     }, [pathname]);
 
-    const currentPage = pathname.startsWith("/about") ? "about" : (pathname.startsWith("/portfolio") ? "portfolio" : "projects");
+    const activeNavId = resolveActiveNavId(pathname);
     const chromeReady = isLoaded || hasLoadedFromNav;
+
+    const navDelay = NAV_LOAD_DELAY[activeNavId ?? "default"] ?? NAV_LOAD_DELAY.default;
 
     const handleNavigate = (href: string) => {
         const target = href.split("#")[0] || pathname;
@@ -80,13 +111,13 @@ function ShellChrome({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <div className={style.shell}>
+        <div className={style.shell} style={{ "--nav-load-delay": navDelay } as CSSProperties}>
             <CursorFollower />
 
             <div className={`${style.navShell} ${chromeReady ? style.loaded : ""} ${hasLoadedFromNav ? style.instant : ""}`}>
                 <PortfolioNav
                     items={navItems}
-                    currentPage={currentPage}
+                    currentPage={activeNavId ?? undefined}
                     isVisible={isNavVisible}
                     onNavigate={handleNavigate}
                 />

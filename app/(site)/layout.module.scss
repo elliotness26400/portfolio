@@ -21,7 +21,7 @@
 		pointer-events: none;
 
 		&.loaded {
-			animation: navShellIn 1100ms cubic-bezier(0.2, 0.75, 0.25, 1) 4600ms both;
+			animation: navShellIn 1100ms cubic-bezier(0.2, 0.75, 0.25, 1) var(--nav-load-delay, 4600ms) both;
 		}
 
 		&.instant,
@@ -41,7 +41,7 @@
 		pointer-events: none;
 
 		&.loaded {
-			animation: languageShellIn 1100ms cubic-bezier(0.2, 0.75, 0.25, 1) 4600ms both;
+			animation: languageShellIn 1100ms cubic-bezier(0.2, 0.75, 0.25, 1) var(--nav-load-delay, 4600ms) both;
 		}
 
 		&.instant,
@@ -151,11 +151,21 @@
 			#0b0a09;
 	}
 
+	/* La page est invisible par défaut : elle ne devient visible que dans un
+	   état connu (`idle` stable ou `entering`). Cela évite le flash d'une
+	   frame à opacity 1 pendant que React retire `.pageLeaving` et applique
+	   `.pageEntering`. */
 	.page {
+		opacity: 0;
 		transition:
 			opacity 420ms cubic-bezier(0.4, 0, 1, 1),
 			transform 420ms cubic-bezier(0.4, 0, 1, 1),
 			filter 420ms ease;
+	}
+
+	/* Phase stable : la page est visible et sans transformation. */
+	.page[data-transition="idle"] {
+		opacity: 1;
 	}
 
 	.pageLeaving {
@@ -199,13 +209,13 @@
 @keyframes pageEnter {
 	from {
 		opacity: 0;
-		transform: translateY(24px);
-		filter: blur(6px);
+		transform: translateY(-12px) scale(0.99);
+		filter: blur(4px);
 	}
 
 	to {
 		opacity: 1;
-		transform: translateY(0);
+		transform: translateY(0) scale(1);
 		filter: blur(0);
 	}
 }

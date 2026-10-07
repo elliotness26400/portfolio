@@ -46,7 +46,6 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
 
     const consumeNavParam = useCallback(() => {
         markLoadedFromNav();
-        setPhase("entering");
         window.history.replaceState(null, "", pathname);
     }, [markLoadedFromNav, pathname]);
 

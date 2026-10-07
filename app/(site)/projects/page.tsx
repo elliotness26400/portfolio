@@ -98,7 +98,7 @@ export default function BlogIndexPage() {
                     <div className={style.tags} aria-label="Filtrer par catégorie">
                         <button
                             type="button"
-                            className={selectedTag === "all" ? `cursor-light ${style.activeTag}` : ""}
+                            className={`cursor-reactive cursor-light ${selectedTag === "all" ? style.activeTag : ""}`.trim()}
                             aria-pressed={selectedTag === "all"}
                             onClick={() => setSelectedTag("all")}
                         >
@@ -108,7 +108,7 @@ export default function BlogIndexPage() {
                             <button
                                 type="button"
                                 key={tag}
-                                className={selectedTag === tag ? `cursor-light ${style.activeTag}` : ""}
+                                className={`cursor-reactive cursor-light ${selectedTag === tag ? style.activeTag : ""}`.trim()}
                                 aria-pressed={selectedTag === tag}
                                 onClick={() => setSelectedTag(tag)}
                             >
