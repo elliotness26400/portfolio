@@ -22,13 +22,13 @@ const entries: JourneyEntry[] = [
     },
     {
         title: "UI / UX Design",
-        place: "Self-taught & coursework",
+        place: "Coursework",
         description: "Wireframing, prototyping and usability testing — learning to design before writing a single line of code.",
         period: "2023 — 2024",
     },
     {
         title: "Web Development",
-        place: "Self-taught",
+        place: "Coursework",
         description: "The fundamentals: HTML, CSS and JavaScript, then algorithms and data structures. The reason I fell in love with building.",
         period: "2019 — 2023",
     },

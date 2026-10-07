@@ -15,7 +15,7 @@ const navItems: PortfolioNavItem[] = [
             <path d="M10 20v-6h4v6" />
         </svg>
     ) },
-    { id: "projects", label: "All Projects", href: "/portfolio#projects", icon: (
+    { id: "projects", label: "All Projects", href: "/projects", icon: (
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <rect x="3.5" y="4.5" width="7" height="7" rx="1.5" />
             <rect x="13.5" y="4.5" width="7" height="4.5" rx="1.5" />
@@ -70,12 +70,10 @@ function ShellChrome({ children }: { children: React.ReactNode }) {
         window.scrollTo(0, 0);
     }, [pathname]);
 
-    const currentPage = pathname.startsWith("/about") ? "about" : "portfolio";
+    const currentPage = pathname.startsWith("/about") ? "about" : (pathname.startsWith("/portfolio") ? "portfolio" : "projects");
     const chromeReady = isLoaded || hasLoadedFromNav;
 
     const handleNavigate = (href: string) => {
-        /* Un lien qui ne change pas de route (ex: /portfolio#projects depuis
-           /portfolio) garde le comportement natif du navigateur. */
         const target = href.split("#")[0] || pathname;
         if (target === pathname) return false;
         navigate(target);
