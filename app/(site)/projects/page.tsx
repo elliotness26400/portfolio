@@ -10,9 +10,6 @@ const projects = Object.entries(blogsDatas).map(([id, project]) => ({ id, ...pro
 
 const TITLE_LINES = ["JOURNAL", "DE PROJETS"];
 
-/* Chaque lettre est animée séparément ; l'index continue d'une ligne à l'autre
-   pour que l'apparition s'enchaîne sans pause. Les espaces deviennent des
-   espaces insécables, sinon un inline-block vide s'effondre. */
 function renderTitleLines() {
     let offset = 0;
 

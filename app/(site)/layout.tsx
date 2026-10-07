@@ -65,7 +65,6 @@ function ShellChrome({ children }: { children: React.ReactNode }) {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    /* Revenir en haut à chaque changement de page évite de garder le scroll. */
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [pathname]);

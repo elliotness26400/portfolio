@@ -21,12 +21,9 @@
 		pointer-events: none;
 
 		&.loaded {
-			/* Le dernier élément de la page (les badges) apparaît à 4400ms :
-			   la nav démarre juste après. */
 			animation: navShellIn 1100ms cubic-bezier(0.2, 0.75, 0.25, 1) 4600ms both;
 		}
 
-		/* Arrivée via la nav : visible tout de suite, jamais de replay 5500ms. */
 		&.instant,
 		&.loaded.instant {
 			animation: none;
@@ -44,7 +41,6 @@
 		pointer-events: none;
 
 		&.loaded {
-			/* Synchronisé avec la nav, juste après les badges. */
 			animation: languageShellIn 1100ms cubic-bezier(0.2, 0.75, 0.25, 1) 4600ms both;
 		}
 
@@ -155,7 +151,6 @@
 			#0b0a09;
 	}
 
-	/* La zone qui disparaît pendant la transition (tout sauf la nav). */
 	.page {
 		transition:
 			opacity 420ms cubic-bezier(0.4, 0, 1, 1),
@@ -217,7 +212,6 @@
 
 @media (prefers-reduced-motion: reduce) {
 	.shell {
-		/* La nav s'affiche immédiatement : plus d'entrée animée, plus d'attente. */
 		.navShell.loaded,
 		.navShell.instant {
 			animation: none;
@@ -232,8 +226,6 @@
 			transform: none;
 		}
 
-		/* Ne pas forcer `.page` visible : l'effacement (opacity + blur)
-		   doit encore s'appliquer pendant `isLeaving`. */
 		.page {
 			transition: opacity 200ms ease, filter 200ms ease;
 		}
@@ -245,7 +237,6 @@
 			filter: none;
 		}
 
-		/* Plus spécifique et après `.pageEntering` pour que l'effacement gagne. */
 		.page.pageLeaving {
 			opacity: 0;
 			transform: none;

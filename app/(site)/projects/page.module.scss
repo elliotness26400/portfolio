@@ -73,8 +73,6 @@
 	}
 }
 
-/* ---------- Barre de recherche et tri ---------- */
-
 .toolbar {
 	display: flex;
 	align-items: flex-end;
@@ -132,8 +130,6 @@
 	font-weight: 400;
 }
 
-/* ---------- Catégories ---------- */
-
 .tags {
 	display: flex;
 	flex-wrap: wrap;
@@ -179,8 +175,6 @@
 	font-size: 0.85rem;
 	font-weight: 300;
 }
-
-/* ---------- Grille de projets ---------- */
 
 .projectGrid {
 	display: grid;
@@ -298,8 +292,6 @@
 	line-height: 1.7;
 }
 
-/* ---------- Animations ---------- */
-
 @keyframes titleLetterReveal {
 	from {
 		opacity: 0;
@@ -343,8 +335,6 @@
 		transform: none;
 	}
 }
-
-/* ---------- Mobile ---------- */
 
 @media (max-width: 700px) {
 	.about {

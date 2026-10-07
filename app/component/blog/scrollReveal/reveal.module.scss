@@ -28,6 +28,7 @@
 
 @media (prefers-reduced-motion: reduce) {
 	.revealRoot {
+
 		:global([data-scroll-reveal]),
 		:global(section > header[data-scroll-reveal]) {
 			opacity: 1;
